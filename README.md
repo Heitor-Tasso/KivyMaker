@@ -3,7 +3,7 @@ Aplicativo parecido com AndroidStudio, porém para usar com a
 biblioteca Kivy
 
 # Como usar:
-Basta colcar o diretório do arquivo .py principal do seu projeto
+Basta colocar o diretório do arquivo .py principal do seu projeto
 na primeira pagina onde está escrito "Open File" e depois apertar
 no Icone de pasta. Pronto o KivyMaker faz tudo para você!!
 
