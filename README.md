@@ -1,2 +1,25 @@
 # KivyMaker
-Aplicativo parecido com AndroidStudio
+Aplicativo parecido com AndroidStudio, porém para usar com a 
+biblioteca Kivy
+
+# Como usar:
+Basta colcar o diretório do arquivo .py principal do seu projeto
+na primeira pagina onde está escrito "Open File" e depois apertar
+no Icone de pasta. Pronto o KivyMaker faz tudo para você!!
+
+# IMPORTANTE
+Fiz um vídeo no meu canal mostrando as funcionaliades e tudo mais,
+se quiser saber mais sobre. Click no link abaixo:
+ - https://www.youtube.com/channel/UCtzSRMR6zsv8ywCmm3O2XqQ
+
+# Tela Inicial
+![IMG One](examples/one.png)
+
+# File Chooser
+![IMG Two](examples/two.png)
+
+# Tela de Reload com TabPhone
+![IMG Three](examples/three.png)
+
+# Tela de Reload com CellPhone
+![IMG Four](examples/four.png)
