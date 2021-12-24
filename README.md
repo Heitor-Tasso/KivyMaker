@@ -1,5 +1,5 @@
 # KivyMaker
-Aplicativo parecido com AndroidStudio, porém para usar com a 
+Aplicativo parecido com AndroidStudio, porém, para usar com a 
 biblioteca Kivy
 
 # Como usar:
