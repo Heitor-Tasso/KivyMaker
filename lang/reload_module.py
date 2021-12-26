@@ -36,9 +36,10 @@ def reset_module(module, inner_modules_also=True):
             reset_module(submod, True)
 
     # First, log all the references before reloading (because some references may be changed by the reload operation).
-    module_tree = _get_tree_references_to_reset_recursively(module, module.__name__)
-    new_module = importlib.reload(module)
-    _reset_item_recursively(module, module_tree, new_module)
+    if module is not None:
+        module_tree = _get_tree_references_to_reset_recursively(module, module.__name__)
+        new_module = importlib.reload(module)
+        _reset_item_recursively(module, module_tree, new_module)
 
 def _update_referrers(item, new_item):
     refs = gc.get_referrers(item)
