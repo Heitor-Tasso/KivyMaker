@@ -1,0 +1,5 @@
+- É necessário mudar o arquivo kivy\uix\behaviors\button.py
+no self.dispatch('on_press') e self.dispatch('on_release'), 
+tem que colocar:
+if App._running_app:
+    self.dispatch('...')
