@@ -30,7 +30,7 @@ from kivy.properties import (
     StringProperty, ObjectProperty, NumericProperty,
 )
 
-if platform == 'win':
+if platform in ('win', 'linux', 'macosx'):
     import keyboard
 
 Builder.load_file('KvMaker.kv')
@@ -82,15 +82,10 @@ class Init_screen(BoxLayout):
         self._icons = self.path + '/assets/icons/'
         self._smartphones = self.path + '/assets/smartphones/'
 
-        if platform in 'win':
+        local_plat = {'win':'C:\\Users', 'macosx':'/Users', 'linux':'/home'}
+        if platform in ('win', 'macosx', 'linux'):
             self.read_keys = self.win_keyboard
-            self._system_path = 'C:\\Users'
-        elif platform == 'macosx':
-            self.read_keys = self.win_keyboard
-            self._system_path = '/Users'
-        elif platform == 'linux':
-            self.read_keys = self.win_keyboard
-            self._system_path = '/home/'
+            self._system_path = local_plat[platform]
         elif platform == 'android':
             self.read_keys = self.kivy_keyboard
             self._system_path = '/storage/emulated/0'
