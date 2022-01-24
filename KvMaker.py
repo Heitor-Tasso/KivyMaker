@@ -82,9 +82,15 @@ class Init_screen(BoxLayout):
         self._icons = self.path + '/assets/icons/'
         self._smartphones = self.path + '/assets/smartphones/'
 
-        if platform == 'win':
+        if platform in 'win':
             self.read_keys = self.win_keyboard
             self._system_path = 'C:\\Users'
+        elif platform == 'macosx':
+            self.read_keys = self.win_keyboard
+            self._system_path = '/Users'
+        elif platform == 'linux':
+            self.read_keys = self.win_keyboard
+            self._system_path = '/home/'
         elif platform == 'android':
             self.read_keys = self.kivy_keyboard
             self._system_path = '/storage/emulated/0'
