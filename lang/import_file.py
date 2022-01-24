@@ -6,7 +6,7 @@ import sys, traceback, os
 from kivy.utils import platform
 
 try:
-    from importlib import reload, import_module
+    from importlib import reload, import_module, invalidate_caches
 except:      # for py 2 compatibility
     pass
 
@@ -404,6 +404,7 @@ class Parser(object):
                     
                     # get the widget os temporary file
                     if platform in {'win', 'linux', 'macosx'}:
+                        invalidate_caches()
                         imported = import_module(name_file)
                         widget = getattr(imported, self.name_of_class)
                     elif platform == 'android':
