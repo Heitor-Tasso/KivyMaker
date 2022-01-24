@@ -30,7 +30,7 @@ from kivy.properties import (
     StringProperty, ObjectProperty, NumericProperty,
 )
 
-if platform in ('win', 'linux', 'macosx'):
+if platform in {'win', 'linux', 'macosx'}:
     import keyboard
 
 Builder.load_file('KvMaker.kv')

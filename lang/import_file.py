@@ -403,10 +403,10 @@ class Parser(object):
                         reset_module(modul)
                     
                     # get the widget os temporary file
-                    if platform == 'win':
+                    if platform in {'win', 'linux', 'macosx'}:
                         imported = import_module(name_file)
                         widget = getattr(imported, self.name_of_class)
-                    else:
+                    elif platform == 'android':
                         widget = getattr(temporari_file, self.name_of_class)
                     
                     write_logs(self.local_files, self.imports_files, self.local_py_files)
