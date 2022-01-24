@@ -96,7 +96,7 @@ class Init_screen(BoxLayout):
         self.debug = Debug()
         self.dropdown = MyDropDown(['Ipad', 'Samsung Galaxy S10'], self.properties_screens)
 
-        Clock.schedule_once(self.config)
+        # Clock.schedule_once(self.config)
     
     def config(self, *args):
         # self.ids.input_file.input.text = r'C:\Users\IO\Downloads\SpotifyClone\Spotify.py'
