@@ -1,3 +1,5 @@
+# Python == 3.9.7
+
 from functools import partial
 import traceback, os
 

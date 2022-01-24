@@ -1,0 +1,4 @@
+Kivy==2.0.0
+kivymd==0.104.2
+keyboard==0.13.5
+importlib==1.0.4
