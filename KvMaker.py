@@ -1,10 +1,15 @@
 # Python == 3.9.7
 
 from functools import partial
-import traceback, os
+import traceback, os, sys
+from KVutils import KVget_path, KVphone
 
-path_temp =  os.path.split(__file__)[0] + '/temp_file/temporari_file.py'
-with open(path_temp, mode='w', encoding='utf-8') as file:
+path = sys.path[0]
+path = path[0:path.find('Temp')] + r'Programs\Python\Python39\Lib\site-packages'
+sys.path.append(path)
+del path
+
+with open(KVget_path('lang/temp.py'), mode='w', encoding='utf-8') as file:
     file.write('\n')
     file.close()
 
@@ -33,7 +38,7 @@ from kivy.properties import (
 if platform in {'win', 'linux', 'macosx'}:
     import keyboard
 
-Builder.load_file('KvMaker.kv')
+Builder.load_file(KVget_path('KvMaker.kv'))
 
 class Debug(BoxLayout):
     pass
@@ -48,8 +53,6 @@ class MyCode1(CodeInput):
 class Init_screen(BoxLayout):
 
     path_file = StringProperty('')
-    _icons = StringProperty('')
-    _smartphones = StringProperty('')
     _system_path = '' 
 
     parser = ObjectProperty(None)
@@ -68,8 +71,8 @@ class Init_screen(BoxLayout):
     path, file = os.path.split(__file__)
 
     properties_screens = {
-        'ipad.png':{'scale':0.81, 'height':0.775, 'x':0, 'y':0},
-        'samsung-s10.png':{'scale':0.768, 'height':0.79, 'x':dp(1.5), 'y':dp(2)},
+        'ipad':{'scale':0.81, 'height':0.775, 'x':0, 'y':0},
+        'samsung-s10':{'scale':0.768, 'height':0.79, 'x':dp(1.5), 'y':dp(2)},
     }
 
     def __init__(self, **kwargs):
@@ -79,14 +82,15 @@ class Init_screen(BoxLayout):
         print('File main ->', self.file)
 
         Clock.max_iteration = 60
-        self._icons = self.path + '/assets/icons/'
-        self._smartphones = self.path + '/assets/smartphones/'
 
         local_plat = {'win':'C:\\Users', 'macosx':'/Users', 'linux':'/home'}
-        if platform in ('win', 'macosx', 'linux'):
+        if platform in local_plat.keys():
+            self.ids.sct.rotation = 0
             self.read_keys = self.win_keyboard
             self._system_path = local_plat[platform]
+        
         elif platform == 'android':
+            self.ids.sct.rotation = 180
             self.read_keys = self.kivy_keyboard
             self._system_path = '/storage/emulated/0'
         
@@ -109,13 +113,13 @@ class Init_screen(BoxLayout):
         if name_screen == '':
             w, h = BoxScreen.size
             if w < dp(500) and w > dp(300):
-                BoxScreen.phone_img = self._smartphones+'samsung-s10.png'
-                BoxScreen.property = self.properties_screens['samsung-s10.png']
+                BoxScreen.phone_img = KVphone('samsung-s10')
+                BoxScreen.property = self.properties_screens['samsung-s10']
             elif w > dp(500):
-                BoxScreen.phone_img = self._smartphones+'ipad.png'
-                BoxScreen.property = self.properties_screens['ipad.png']
+                BoxScreen.phone_img = KVphone('ipad')
+                BoxScreen.property = self.properties_screens['ipad']
         else:
-            BoxScreen.phone_img = self._smartphones+name_screen
+            BoxScreen.phone_img = KVphone(name_screen)
             BoxScreen.property = self.properties_screens[name_screen]
 
     def update_debug(self, state):
@@ -195,47 +199,45 @@ class Init_screen(BoxLayout):
 
     def carrega(self, *args):
         self.read_keys()
-        if self.reaload:
-            self.reaload = False
-            self.remove_screen()
+        if not self.reaload:
+            return None
 
-            if self.editors:
-                editor = self.editors[self.index_editor-1]
-                if editor.focus == True:
-                    print('focus == True')
-                    with open(self.path_file, mode='w', encoding='utf-8') as texto:
-                        texto.write(editor.text)
+        self.reaload = False
+        self.remove_screen()
+        if self.editors:
+            editor = self.editors[self.index_editor-1]
+            if editor.focus == True:
+                print('Escreveu texto do editor no arquivo -> ', self.path_file)
+                with open(self.path_file, mode='w', encoding='utf-8') as texto:
+                    texto.write(editor.text)
+        
+        tmp = time()
+        ext, widget = self.parser.import_widget(self.path_file, self.first_load, self.path)
+        print('Demorou: ', time()-tmp, 'Segundos para importar o App')        
+        self.first_load = False
 
-            tmp = time()
+        if ext == 'Error':
+            self.ids.btn_debug.state = 'down'
+            setattr(MDApp, '__new_app', None)
+            # ocorreu um erro e widget é a mensagem
+            self.debug.ids.text_debug.text = widget
+            return None
 
-            widget = self.parser.import_widget(self.path_file, self.first_load, self.path)
-            print('Demorou: ', time()-tmp, 'Segundos para importar o App')
-            self.first_load = False
-
-            if not widget or not widget[1]:
-                return
-            if widget[0] == 'Error':
-                self.ids.btn_debug.state = 'down'
-                setattr(MDApp, '__new_app', None)
-                self.debug.ids.text_debug.text = widget[1]
-            else:
-                self.ids.telinhas.current = 'ScreenWidget'
-                if widget[0] == 'py':
-                    wid = widget[1]
-                    wid.root2 = self
-                    setattr(MDApp, '__new_app', widget[1])
-                    self.ids.smartphone.add_widget(wid.start())
-                    widget[1].dispatch('on_start')
-
-                elif widget[0] == 'kv':
-                    self.ids.smartphone.add_widget(widget[1])
-                
-                if self.editors == []:
-                    self.create_editor()
-                    self.hide_editor(self.index_editor-1)
-                
-                self.current_editor.text = ''.join(self.parser.lines_main_file)
-                self.ids.btn_debug.state = 'normal'
+        self.ids.telinhas.current = 'ScreenWidget'
+        if ext == 'py':
+            widget.root2 = self
+            setattr(MDApp, '__new_app', widget)
+            self.ids.smartphone.add_widget(widget.start())
+            widget.dispatch('on_start')
+        elif ext == 'kv':
+            self.ids.smartphone.add_widget(widget)
+        
+        if self.editors == []:
+            self.create_editor()
+            self.hide_editor(self.index_editor-1)
+        
+        self.current_editor.text = ''.join(self.parser.lines_main_file)
+        self.ids.btn_debug.state = 'normal'
 
     def popup_get_folder(self, *args):
         pass

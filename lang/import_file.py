@@ -1,20 +1,17 @@
 
 from textwrap import dedent
+from KVutils import KVget_path
 from lang.py_local_builds import _with_builds, _without_builds
 from kivy.lang import Builder
 import sys, traceback, os
 from kivy.utils import platform
 
-try:
-    from importlib import reload, import_module, invalidate_caches
-except:      # for py 2 compatibility
-    pass
-
+from importlib import import_module, invalidate_caches
 from lang.reload_module import reset_module
 from lang.path import correct_path
 
 if platform == 'android':
-    from temp_file import temporari_file
+    from lang import temp
 
 def write_logs(local_files, imports_files, local_py_files):
     with open('varibles.txt', mode='w', encoding='utf-8') as txt:
@@ -49,6 +46,7 @@ class Parser(object):
 
     # varibles that you can't reset
     last_builder_files = []
+    name_module_main = 'lang.temp'
 
     def __init__(self, **kwargs):
         self.create_varibles()
@@ -66,7 +64,6 @@ class Parser(object):
         self.have_builder = False
 
         self.index_files = 0
-        self.line_class_app = 0
 
         self.name_file = ''
         self.name_of_class = ''
@@ -113,14 +110,19 @@ class Parser(object):
                 # call build_funcs to know if have Builder.function
                 self.update_build_funcs(line, current_local)
                 
-                if self.string_builds:
+                if self.string_builds or line.find('SimulateApp') != -1:
                     # line are commented
                     continue
 
                 # check if this line is a Class App
-                if line.find('class') != -1 and line.find('App') != -1:
-                    self.name_of_class = line.split(' ')[1].split('(')[0]
-                    self.line_class_app = numL
+                if current_local == self.name_file:
+                    if line.find('class') != -1 and line.find('App') != -1:
+                        self.name_of_class = line.split(' ')[1].split('(')[0]
+
+                        class_app = 'MDApp' if line.find('MDApp') != -1 else 'App'
+                        # substitui para utilizar o app do KvMaker
+                        line = line.replace(class_app, 'SimulateApp')
+                        self.lines_main_file[numL] = line
                 
                 continue
             
@@ -229,27 +231,13 @@ class Parser(object):
         
         '''
         path = self.path_filename.replace("/", "\\")
-
         lines = dedent(f"""
             __file__ = r'{path}'
-            from lang.KivyApp import SimulateApp\n
+            from lang.KivyApp import SimulateApp
         """)
 
         with open(filename, mode='w', encoding='utf-8') as file:
-            for numL, line in enumerate(self.lines_main_file):
-                if numL != self.line_class_app:
-                    index_run = line.find(f'{self.name_of_class}().run()')
-                    if index_run == -1:
-                        # adiciona nova linha
-                        lines += line
-                    else:
-                        lines += f'{line[0:index_run]}""'
-                    continue
-                # saber se o projeto está usando KivyMD ou Kivy
-                class_app = 'MDApp' if line.find('MDApp') != -1 else 'App'
-                # substitui para utilizar o app do KvMaker
-                lines += f"{line.replace(class_app, 'SimulateApp')}"
-            
+            lines += ''.join(self.lines_main_file)
             # escreve no arquivo temporário
             file.writelines(lines)
 
@@ -346,6 +334,24 @@ class Parser(object):
                     import_path += '.'
             reset_module(sys.modules.get(import_path))
 
+    def import_main(self):
+        # get the widget os temporary file
+        if platform in {'win', 'linux', 'macosx'}:
+            invalidate_caches()
+            return import_module(self.name_module_main)
+        elif platform == 'android':
+            return temp
+
+    def reset_main_module(self):
+        self.import_main()
+        self.unload_kv_files()
+        # reset this module if has
+        if sys.modules.get(self.name_module_main) is not None:
+            modul = sys.modules.get(self.name_module_main)
+            reset_module(modul)
+
+        return self.import_main()
+
     def import_widget(self, path_filename, first_load_file, path_kvmaker):
         """
         Get the root Widget of the project being run. 
@@ -388,31 +394,19 @@ class Parser(object):
 
                     # start recursion and parse the main file
                     self.update_imports()
-                
-                    path_temp = correct_path(path_kvmaker) + '/temp_file/'
-                    name_file = 'temp_file.temporari_file'
-                    self.construc_temp_file(f'{path_temp}temporari_file.py')
 
+                    self.construc_temp_file(KVget_path('lang/temp.py'))
+
+                    self.read_kvs()
                     if first_load_file is False:
-                        self.read_kvs()
                         self.reload_py_files()
-
-                    # reset this module if has
-                    if sys.modules.get(name_file) is not None:
-                        modul = sys.modules.get(name_file)
-                        reset_module(modul)
                     
-                    # get the widget os temporary file
-                    if platform in {'win', 'linux', 'macosx'}:
-                        invalidate_caches()
-                        imported = import_module(name_file)
-                        widget = getattr(imported, self.name_of_class)
-                    elif platform == 'android':
-                        widget = getattr(temporari_file, self.name_of_class)
+                    imported = self.reset_main_module()
+                    widget = getattr(imported, self.name_of_class)
                     
                     write_logs(self.local_files, self.imports_files, self.local_py_files)
                     file.close()
-                    return  ['py', widget(), name_file]
+                    return  ['py', widget()]
 
                 except Exception:
                     msg = self.erros()

@@ -1,6 +1,8 @@
-#: import KVIconInput KVuix.KVinputs
-#: import KVButtonEffect KVuix.KVbuttons
+#: import KVIconInput KVuix.KVinputs.KVIconInput
+#: import KVButtonEffect KVuix.KVbuttons.KVButtonEffect
 #: import hex kivy.utils.get_color_from_hex
+#: import KVicons KVutils.KVicons
+#: import KVphone KVutils.KVphone
 
 <AnchorIcon@AnchorLayout>:
     size_hint_x:None
@@ -58,14 +60,14 @@
                 TollBarTop:
                     AnchorIcon:
                         KVButtonIcon:
-                            icon_source:root._icons+'exit.png'
+                            icon_source:KVicons('exit')
                             on_release:app.stop(app)
                     Label:
                         text:'Configurando'
                         font_size: '20sp'
                     AnchorIcon:
                         KVButtonIcon:
-                            icon_source:root._icons+'help.png'
+                            icon_source:KVicons('help')
                                
                          
                 AnchorLayout:
@@ -101,13 +103,13 @@
                                 background_color:[1, 1, 1, 0.75]
                                 
                                 label_text:'Open File'
-                                icon_right_source:[root._icons+'create.png']
+                                icon_right_source:[KVicons('create')]
                                 icon_right_state:'button'
                                 
                                 on_icon_right_pos:
-                                    self.icon_right.source = root._icons+'path.png'
+                                    self.icon_right.source = KVicons('path')
                                 on_icon_right_pos_release:
-                                    self.icon_right.source = root._icons+'create.png'
+                                    self.icon_right.source = KVicons('create')
                                 on_icon_right_release:root.search_path()
                                 on_input_press:
                                     self.input.text = 'Enter local file' if \
@@ -130,7 +132,7 @@
                                 icon_right_color_pos:[10,0,0,1]
                                 background_color:[1,1,1,.75]
 
-                                icon_right_source:[root._icons+'add_white.png']
+                                icon_right_source:[KVicons('add_white')]
                                 icon_right_state:'button'
                                 label_text:'Create File'
 
@@ -157,37 +159,37 @@
                 TollBarTop:
                     AnchorIcon:
                         KVButtonIcon:
-                            icon_source:root._icons+'back.png'
+                            icon_source:KVicons('back')
                             on_release:root.volta()
                     Widget:
                     AnchorIcon:
                         KVButtonIcon:
                             icon_color:root.orange_sunset
-                            icon_source:root._icons+'editor.png'
+                            icon_source:KVicons('editor')
                             on_press:
                                 root.create_editor() if root.editors == [] else \
                                 root.hide_editor(root.index_editor-1)
                     AnchorIcon:
                         KVToggleButtonIcon:
                             icon_color:root.orange_sunset
-                            icon_source:root._icons+'repetition.png'
+                            icon_source:KVicons('repetition')
                             id:bt_toggle
                             on_state: root.reload(self.state)
                     AnchorIcon:
                         KVToggleButtonIcon:
                             icon_color:root.orange_sunset
-                            icon_source:root._icons+'terminal2.png'
+                            icon_source:KVicons('terminal2')
                             on_state:root.update_debug(self.state)
                             id:btn_debug
                     AnchorIcon:
                         KVButtonIcon:
                             icon_color:[1, 1, 1, 1]
-                            icon_source:root._icons+'reload1.png'
+                            icon_source:KVicons('reload1')
                             on_press: root.allow_loading()
                     Widget:
                     AnchorIcon:
                         KVButtonIcon:
-                            icon_source:root._icons+'exit.png'
+                            icon_source:KVicons('exit')
                             on_release:app.stop(app)
                 BoxLayout:
                     id:boxCode
@@ -223,12 +225,12 @@
                                     height: '45dp'
                                     AnchorIcon:
                                         KVButtonIcon:
-                                            icon_source:root._icons+'zoom-out.png'
+                                            icon_source:KVicons('zoom-out')
                                             on_press:smartphone.width = smartphone.width + dp(30)
                                             size:'30dp', '30dp'
                                     AnchorIcon:
                                         KVButtonIcon:
-                                            icon_source:root._icons+'zoom-in.png'
+                                            icon_source:KVicons('zoom-in')
                                             on_press:smartphone.width = smartphone.width - dp(30)
                                             size:'30dp', '30dp'
                                     AnchorIcon:
@@ -244,7 +246,7 @@
                                                 Rectangle:
                                                     size:self.size
                                                     pos:self.pos
-                                                    source:root._icons+'iphone-mobile.png'
+                                                    source:KVicons('iphone-mobile')
                                                 PopMatrix
                                             size_hint:None, None
                                             size:'30dp', '30dp'
@@ -255,7 +257,7 @@
                                                 self.angle = 90 if self.state == 'down' else 0
                                     AnchorIcon:
                                         KVButtonIcon:
-                                            icon_source: root._icons+'three-dots.png'
+                                            icon_source: KVicons('three-dots')
                                             size:'30dp', '30dp'
                                             on_release: root.dropdown.open(self)
                                 AnchorLayout:
@@ -275,8 +277,8 @@
                                                 source: self.phone_img
                                         on_size:
                                             root.change_screens()
-                                        phone_img:root._smartphones+'samsung-s10.png'
-                                        property:root.properties_screens['samsung-s10.png']
+                                        phone_img:KVphone('samsung-s10')
+                                        property:root.properties_screens['samsung-s10']
                                         FloatLayout:
                                             size_hint:None, None
                                             size: (0, 0)

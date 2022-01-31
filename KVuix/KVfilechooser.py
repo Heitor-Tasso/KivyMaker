@@ -11,33 +11,33 @@ class "AnchorIcon" are imported from KvScreen.kv
 """
 
 Builder.load_string("""
+#: import KVicons KVutils.KVicons
 
 <Chooser>:
     FileChooserIconLayout:
     FileChooserListLayout:
 
 <FilesPath>:
-    _icons:app.root2._icons
     BoxLayout:
         orientation: 'vertical'
         TollBarTop:
             AnchorIcon:
                 KVButtonIcon:
-                    icon_source:root._icons+'back.png'
+                    icon_source:KVicons('back')
                     on_press: root.dismiss()
             Widget:
             AnchorIcon:
                 KVButtonIcon:
-                    icon_source:root._icons+'grid.png'
+                    icon_source:KVicons('grid')
                     on_press: fc.view_mode = 'icon'
             AnchorIcon:
                 KVButtonIcon:
-                    icon_source:root._icons+'list-play.png'
+                    icon_source:KVicons('list-play')
                     on_press: fc.view_mode = 'list'
             Widget:
             AnchorIcon:
                 KVButtonIcon:
-                    icon_source:root._icons+'add_white.png'
+                    icon_source:KVicons('add_white')
                     on_press: fc.load()
             
                 

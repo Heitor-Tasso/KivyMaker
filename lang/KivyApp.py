@@ -64,6 +64,8 @@ class SimulateApp(Widget):
             self.call_mdapp = False
             KivyApp.stop()
     
+    def run(self, *args):
+        pass
     def on_stop(self, *args):
         pass
     def on_start(self, *args):
