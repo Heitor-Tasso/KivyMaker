@@ -1,30 +1,21 @@
 
-from textwrap import dedent
-from KVutils import KVget_path
-from lang.py_local_builds import _with_builds, _without_builds
-from kivy.lang import Builder
 import sys, traceback, os
+from kivy.lang import Builder
 from kivy.utils import platform
 
 from importlib import import_module, invalidate_caches
+from lang.path import correct_path, file_paths
 from lang.reload_module import reset_module
-from lang.path import correct_path
+from KVutils import KVget_path
+from textwrap import dedent
 
 if platform == 'android':
     from lang import temp
 
-def write_logs(local_files, imports_files, local_py_files):
+def write_logs(local_files, imports_files):
     with open('varibles.txt', mode='w', encoding='utf-8') as txt:
-        valor = 'local_py_files = (\n'
-        n = 0
-        for i in local_py_files:
-            n += 1
-            if n == 1:
-                valor += '    '
-            valor += i+', '
-            if n == 2:
-                valor += '\n'
-                n = 0
+        valor = '\n'
+
         valor += ')\n\nlocal_files = (\n'
         valor += ''.join(tuple(map(lambda i: f'     {i},\n', local_files)))
         valor += '\n)\n\nimports_files = (\n'
@@ -57,12 +48,10 @@ class Parser(object):
         '''
         self.local_files = []
         self.imports_files = []
-        self.local_py_files = []
         self.lines_main_file = []
+        self._paths = []
 
-        self.string_builds = False
-        self.have_builder = False
-
+        self.find_class = False
         self.index_files = 0
 
         self.name_file = ''
@@ -76,20 +65,17 @@ class Parser(object):
         Start recursion to get all imports
         '''
         locals_files = self.local_files[self.index_files::]
-        local_imports = self.imports_files[self.index_files::]
         self.index_files += len(locals_files)
         
-        for _import, local in zip(local_imports, locals_files):
+        for local in locals_files:
             with open(local, mode='r', encoding='utf-8') as text:
-                lines_text = text.readlines()
-                for numL, line in enumerate(lines_text):
-                    self.verify_line(line, numL, _import)
-                self.have_builder = False
+                for numL, line in enumerate(text.readlines()):
+                    self.verify_line(line, numL)
         
         if self.local_files[self.index_files::]:
             self.update_imports()
 
-    def verify_line(self, line, numL, current_local):
+    def verify_line(self, line, numL):
         '''
         Verify if the line has a import or Builder functions,
         to use this later.
@@ -97,7 +83,6 @@ class Parser(object):
         Args:
             `line` (str): line of a file being read.
             `numL` (int): index of this line.
-            `current_local` (str): path location of this file.
         '''
         # must be in this orden because python import is from .. import ..
         for name_import in ('from', ' import'):
@@ -107,23 +92,16 @@ class Parser(object):
                 continue
 
             if index_import == -1:
-                # call build_funcs to know if have Builder.function
-                self.update_build_funcs(line, current_local)
-                
-                if self.string_builds or line.find('SimulateApp') != -1:
-                    # line are commented
+                if line.find('SimulateApp') != -1 or self.find_class:
                     continue
+                if line.find('class') != -1 and line.find('App') != -1:
+                    self.name_of_class = line.split(' ')[1].split('(')[0]
 
-                # check if this line is a Class App
-                if current_local == self.name_file:
-                    if line.find('class') != -1 and line.find('App') != -1:
-                        self.name_of_class = line.split(' ')[1].split('(')[0]
-
-                        class_app = 'MDApp' if line.find('MDApp') != -1 else 'App'
-                        # substitui para utilizar o app do KvMaker
-                        line = line.replace(class_app, 'SimulateApp')
-                        self.lines_main_file[numL] = line
-                
+                    class_app = 'MDApp' if line.find('MDApp') != -1 else 'App'
+                    # substitui para utilizar o app do KvMaker
+                    line = line.replace(class_app, 'SimulateApp')
+                    self.lines_main_file[numL] = line
+                    self.find_class = True
                 continue
             
             list_import = line[index_import::].split(' ')
@@ -134,8 +112,7 @@ class Parser(object):
                     for words in list_word:
                         if words[0] not in {' ', ''}:
                             correct_word = words[0].split('\n')[0]
-                            if correct_word in _with_builds or correct_word not in _without_builds:
-                                self.update_local_paths(correct_word)
+                            self.update_local_paths(correct_word)
                 break # found the import, can be braked
 
             # with from and import
@@ -149,8 +126,7 @@ class Parser(object):
                 
                 # corret path of this import
                 correct_word = f'{local}{word_import}'.split('\n')[0]
-                if correct_word in _with_builds or correct_word not in _without_builds:
-                    self.update_local_paths(correct_word)
+                self.update_local_paths(correct_word)
             
             break # found the import, can be braked
 
@@ -162,66 +138,26 @@ class Parser(object):
         Args:
             `local` (str): any local of a python file.
         '''
+        if local is None or local.startswith('kivy'):
+            return None
+        
         local = correct_path(local)
         if local in self.imports_files:
             # imports_files already has this local
             return None
         
-        local_path = None
-        for extension in ('.py', '.pyx'):
-            if local_path is not None:
+        for locale in self._paths:
+            if locale.find(local) != -1:
+                self.local_files.append(locale)
+                self.imports_files.append(local)
                 break
 
-            for locale in map(correct_path, sys.path):
-                if not locale.endswith('/'):
-                    locale += '/'
-
-                local_path = f'{locale}{local}{extension}'
-                try:
-                    with open(local_path, mode="r", encoding="utf-8") as texto:
-                        if local_path not in self.local_files:
-                            self.local_files.append(local_path)
-                            self.imports_files.append(local)
-                        
-                        texto.close()
-                    break
-                except (FileNotFoundError, OSError):
-                    local_path = None
-
-    def update_build_funcs(self, line, current_local):
-        '''
-        Update files with Builder functions, get if the line has.
-
-        Args:
-            `line` (str): line of a file being read.
-            `current_local` (str): path location of this file.
-
-        '''
-        index_builder = line.find("Builder.load_file")
-        # has builder load_file
-        if index_builder != -1:
-            if not self.have_builder:
-                self.local_py_files.append(current_local)
-                self.have_builder = True
-            return None
-
-        index_builder = line.find("Builder.load_string")
-        # has builder load_string in this line
-        if index_builder == -1:
-            # 1 if has this characters else 0
-            has_str = sum(set(map(lambda x: x in line, {'"""', "'''"})))
-            if self.string_builds and has_str == 1:
-                self.string_builds = False
-                self.local_py_files.append(current_local)
-                self.have_builder = True
-            return None
-
-        # has load_string and are not in a commentary
-        if not self.string_builds:
-            commented = line[0:index_builder].find('#')
-            if line.rfind(')') == -1 and commented == -1:
-                self.string_builds = True
-
+    def files_project(self):
+        self.last_local = self.dirname[0:self.dirname.rfind('/')]
+        self._paths = file_paths(self.last_local, ('.py', ))
+        if self.path_filename in self._paths:
+            self._paths.remove(self.path_filename)
+    
     def construc_temp_file(self, filename):
         '''
         Write a new application in a temporary file so it can be used in KvMaker
@@ -282,28 +218,20 @@ class Parser(object):
             
             local = word[0:word.rfind('.')].replace('.', '/')
 
-            local_path = None
             for extension in ('.py', '.kv'):
-                if local_path is not None:
+                local_path = self.last_local + '/' + local + extension
+                try:
+                    with open(local_path, mode="r", encoding="utf-8") as texto:
+                        if extension == '.py':
+                            if local_path not in self.local_files:
+                                self.local_files.append(local_path)
+                                self.imports_files.append(local)
+                        else:
+                            self.imports_kv_file(texto.readlines())
+                        texto.close()
                     break
-
-                for locale in sys.path:
-                    locale = correct_path(locale)
-                    if not locale.endswith('/'):
-                        locale += '/'
-                    local_path = locale + local + extension
-                    try:
-                        with open(local_path, mode="r", encoding="utf-8") as texto:
-                            if extension == '.py':
-                                if local_path not in self.local_files:
-                                    self.local_files.append(local_path)
-                                    self.imports_files.append(local)
-                            else:
-                                self.imports_kv_file(texto.readlines())
-                            texto.close()
-                        break
-                    except (FileNotFoundError, OSError):
-                        local_path = None
+                except (FileNotFoundError, OSError):
+                    pass
 
     def unload_kv_files(self):
         '''
@@ -325,32 +253,34 @@ class Parser(object):
         '''
         Reload all python dependencies.
         '''
-        for import_builder in reversed(self.local_py_files):
+        for import_builder in reversed(self.imports_files):
             list_import = import_builder.split('/')
             import_path = ''
             for word in list_import:
                 import_path += word
                 if word != list_import[-1]:
                     import_path += '.'
-            reset_module(sys.modules.get(import_path))
+            
+            pymodul = sys.modules.get(import_path)
+            reset_module(pymodul)
 
     def import_main(self):
         # get the widget os temporary file
         if platform in {'win', 'linux', 'macosx'}:
             invalidate_caches()
             return import_module(self.name_module_main)
-        elif platform == 'android':
+        elif platform in {'android'}:
             return temp
 
     def reset_main_module(self):
         self.import_main()
-        self.unload_kv_files()
+
         # reset this module if has
-        if sys.modules.get(self.name_module_main) is not None:
-            modul = sys.modules.get(self.name_module_main)
+        modul = sys.modules.get(self.name_module_main)
+        if modul is not None:
             reset_module(modul)
 
-        return self.import_main()
+        return getattr(self.import_main(), self.name_of_class)()
 
     def import_widget(self, path_filename, first_load_file, path_kvmaker):
         """
@@ -368,7 +298,7 @@ class Parser(object):
         """
         self.last_builder_files = Builder.files.copy()
         if first_load_file is True:
-            if self.dirname in sys.path:
+            if self.dirname in self._paths:
                 sys.path.remove(self.dirname)
         else:
             self.unload_kv_files()
@@ -382,7 +312,7 @@ class Parser(object):
             sys.path.insert(0, self.dirname)
         # change python work area
         os.chdir(self.dirname)
-
+        self.files_project()
         self.name_file, self.extension = file_path.split('.')
 
         with open(self.path_filename, mode='r', encoding='utf-8') as file:
@@ -390,7 +320,7 @@ class Parser(object):
                 self.lines_main_file = file.readlines()
                 try:
                     for numL, line in enumerate(self.lines_main_file):
-                        self.verify_line(line, numL, self.name_file)
+                        self.verify_line(line, numL)
 
                     # start recursion and parse the main file
                     self.update_imports()
@@ -400,13 +330,11 @@ class Parser(object):
                     self.read_kvs()
                     if first_load_file is False:
                         self.reload_py_files()
+                    widget = self.reset_main_module()
                     
-                    imported = self.reset_main_module()
-                    widget = getattr(imported, self.name_of_class)
-                    
-                    write_logs(self.local_files, self.imports_files, self.local_py_files)
+                    write_logs(self.local_files, self.imports_files)
                     file.close()
-                    return  ['py', widget()]
+                    return  ['py', widget]
 
                 except Exception:
                     msg = self.erros()
