@@ -17,7 +17,7 @@ from kivy.properties import (
 Builder.load_string("""
 
 <KVButtonEffect>:
-    background_color:[1,1,1,0]
+    background_color:[1, 1, 1, 0]
     canvas.before:
         Color:
             rgba:self.background
@@ -28,18 +28,18 @@ Builder.load_string("""
         Color:
             rgba:self.background_line
         Line:
-            rounded_rectangle:self.pos + self.size + self.radius + [100]
+            rounded_rectangle:(self.pos + self.size + self.radius + [100])
             width:self.width_line
 <KVIconButton>:
 
-""", filename="KVbuttons.kv")
+""", filename="KVButtons.kv")
 
 class KVButtonEffect(EffectBehavior, ButtonBehavior, Label):
     #Colors
     background_line = ListProperty([0, 0, 0, 0])
     background = ListProperty([0, 0, 0, 0])
     color_background = ListProperty([[0.05, 0.0, 0.4, 1], [0.0625, 0.0, 0.5, 1]])
-    color_line = ListProperty([[1,1,1,1], [0.8, 0.925, 1, 1]])
+    color_line = ListProperty([[1, 1, 1, 1], [0.8, 0.925, 1, 1]])
     #Sizes
     width_line = NumericProperty(1.01)
 
@@ -86,11 +86,11 @@ class KVButtonEffect(EffectBehavior, ButtonBehavior, Label):
             self.background_line = self.color_line[0]
 
 class KVIconButton(EffectBehavior, ButtonBehavior, Image):
-    defaut_color = ListProperty([1,1,1,1])
+    defaut_color = ListProperty([1, 1, 1, 1])
     pos_color = ListProperty([0, 0, 0, 0])
     sources = ListProperty([])
     state_button = StringProperty('')
-    radius_effect = ListProperty([dp(15),dp(15),dp(15),dp(15)])
+    radius_effect = ListProperty([dp(15), dp(15), dp(15), dp(15)])
     window_root = ObjectProperty()
     name = StringProperty('')
 
@@ -116,7 +116,7 @@ class KVIconButton(EffectBehavior, ButtonBehavior, Image):
             return
         if self.collide_point(*self.to_widget(*args[1])):
             if self.window_root:
-                self.window_root.dispatch('on_'+self.name+'_pos')
+                self.window_root.dispatch(f'on_{self.name}_pos')
                 self.on_enter_pos = True
             if self.pos_color != [0, 0, 0, 0]:
                 self.color = self.pos_color
@@ -124,7 +124,7 @@ class KVIconButton(EffectBehavior, ButtonBehavior, Image):
             self.color = self.defaut_color
             if self.on_enter_pos:
                 if self.window_root:
-                    self.window_root.dispatch('on_'+self.name+'_pos_release')
+                    self.window_root.dispatch(f'on_{self.name}_pos_release')
                     self.on_enter_pos = False
 
     def on_touch_down(self, touch):

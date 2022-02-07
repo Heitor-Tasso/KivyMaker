@@ -9,6 +9,8 @@ def correct_path(path_filename:str):
     path = [x + '/' for x in new_str[0:-1] if x != '']
     return ''.join([bar_init] + path + [new_str[-1]])
 
+_path_temp = correct_path(os.path.split(__file__)[0]) 
+
 def file_paths(path:str, extensions:tuple):
     files = []
     for diretorio, subpastas, arquivos in os.walk(correct_path(path)):

@@ -4,39 +4,17 @@ from kivy.lang import Builder
 from kivy.utils import platform
 
 from importlib import import_module, invalidate_caches
-from lang.path import correct_path, file_paths
+from lang.KVPath import correct_path, file_paths
 from lang.reload_module import reset_module
-from KVutils import KVget_path
+from KVUtils import KVget_path
 from textwrap import dedent
 
 if platform == 'android':
     from lang import temp
 
-def write_logs(local_files, imports_files):
-    with open('varibles.txt', mode='w', encoding='utf-8') as txt:
-        valor = '\n'
-
-        valor += ')\n\nlocal_files = (\n'
-        valor += ''.join(tuple(map(lambda i: f'     {i},\n', local_files)))
-        valor += '\n)\n\nimports_files = (\n'
-        n = 0
-        for i in imports_files:
-            n += 1
-            if n == 1:
-                valor += '    '
-            valor += i+', '
-            if n == 3:
-                valor += '\n'
-                n = 0
-        valor += ')\n\n'
-
-        txt.writelines(valor)
-        txt.close()
-
 class Parser(object):
 
     # varibles that you can't reset
-    last_builder_files = []
     name_module_main = 'lang.temp'
 
     def __init__(self, **kwargs):
@@ -49,9 +27,11 @@ class Parser(object):
         self.local_files = []
         self.imports_files = []
         self.lines_main_file = []
-        self._paths = []
+        self._KvPaths = []
+        self._PyPaths = []
 
         self.find_class = False
+        self.commented = False
         self.index_files = 0
 
         self.name_file = ''
@@ -59,6 +39,29 @@ class Parser(object):
         self.dirname = ''
         self.extension = ''
         self.path_filename = ''
+
+    def write_logs(self):
+        varibles = (
+            'find_class', 'index_files',
+            'name_file', 'name_of_class', 'dirname',
+            'extension', 'path_filename', 
+        )
+        big_data = (
+            'local_files', 'imports_files',
+            '_KvPaths', '_PyPaths',
+        )
+        
+        text = ''
+        with open('log.txt', mode='w', encoding='utf-8') as txt:
+            text += ''.join(f'\n{x} = "{getattr(self, x)}"\n' for x in varibles)
+            
+            for v in big_data:
+                text += f'\n{v} = [\n'
+                text += ''.join(f'{" "*4}"{x}",\n' for x in getattr(self, v))
+                text += f']\n'
+            
+            txt.writelines(text)
+            txt.close()
 
     def update_imports(self):
         '''
@@ -84,27 +87,21 @@ class Parser(object):
             `line` (str): line of a file being read.
             `numL` (int): index of this line.
         '''
-        # must be in this orden because python import is from .. import ..
+        lp = line.replace(' ', '')
+        # to know if this line are commented
+        if lp.startswith("'''") or lp.startswith('"""'):
+            self.commented = not self.commented
+        if lp.startswith('#') or self.commented:
+            return None
+        
         for name_import in ('from', ' import'):
             index_import = line.find(name_import)
-            if line[0:index_import].find('#') != -1:
-                # the import line is commented
-                continue
-
             if index_import == -1:
-                if line.find('SimulateApp') != -1 or self.find_class:
-                    continue
-                if line.find('class') != -1 and line.find('App') != -1:
-                    self.name_of_class = line.split(' ')[1].split('(')[0]
-
-                    class_app = 'MDApp' if line.find('MDApp') != -1 else 'App'
-                    # substitui para utilizar o app do KvMaker
-                    line = line.replace(class_app, 'SimulateApp')
-                    self.lines_main_file[numL] = line
-                    self.find_class = True
+                self.find_app(line, numL)
                 continue
             
             list_import = line[index_import::].split(' ')
+            correct_word = ''
             # line only with import
             if not 'from' in list_import:
                 locals = [[y.split(' ') for y in x.split(',')] for x in list_import[1::]]
@@ -113,22 +110,33 @@ class Parser(object):
                         if words[0] not in {' ', ''}:
                             correct_word = words[0].split('\n')[0]
                             self.update_local_paths(correct_word)
-                break # found the import, can be braked
-
-            # with from and import
-            locals = line[index_import::].split(' ')
-            list_locals = [] if len(locals) < 3 else locals[1].split('.')
-            local = ''
-            for word_import in list_locals:
-                if word_import != list_locals[-1]:
-                    local += f'{word_import}/'
-                    continue
-                
-                # corret path of this import
-                correct_word = f'{local}{word_import}'.split('\n')[0]
+            else:
+                # with from and import
+                locals = line[index_import::].split(' ')
+                list_locals = [] if len(locals) < 3 else locals[1].split('.')
+                local = ''
+                for word_import in list_locals:
+                    if word_import != list_locals[-1]:
+                        local += f'{word_import}/'
+                        continue
+                    correct_word = f'{local}{word_import}'.split('\n')[0]
+            if correct_word != '':
                 self.update_local_paths(correct_word)
-            
-            break # found the import, can be braked
+                break
+
+    def find_app(self, line, numL):
+        if line.find('SimulateApp') != -1 or self.find_class:
+            return None
+        
+        if line.find('class') != -1 and line.find('App') != -1:
+            self.name_of_class = line.split(' ')[1].split('(')[0]
+
+            class_app = 'MDApp' if line.find('MDApp') != -1 else 'App'
+            # substitui para utilizar o app do KvMaker
+            line = line.replace(class_app, 'SimulateApp')
+            self.lines_main_file[numL] = line
+            self.find_class = True
+
 
     def update_local_paths(self, local):
         '''
@@ -146,7 +154,7 @@ class Parser(object):
             # imports_files already has this local
             return None
         
-        for locale in self._paths:
+        for locale in self._PyPaths:
             if locale.find(local) != -1:
                 self.local_files.append(locale)
                 self.imports_files.append(local)
@@ -154,9 +162,10 @@ class Parser(object):
 
     def files_project(self):
         self.last_local = self.dirname[0:self.dirname.rfind('/')]
-        self._paths = file_paths(self.last_local, ('.py', ))
-        if self.path_filename in self._paths:
-            self._paths.remove(self.path_filename)
+        self._PyPaths = file_paths(self.last_local, ('.py', ))
+        self._KvPaths = file_paths(self.last_local, ('.kv', ))
+        if self.path_filename in self._PyPaths:
+            self._PyPaths.remove(self.path_filename)
     
     def construc_temp_file(self, filename):
         '''
@@ -181,20 +190,15 @@ class Parser(object):
         '''
         find the imports of Kv file to know where are all files of this project.
         '''
-        files = {'KvMaker.kv', 'style.kv'}
-        for path_file in self.last_builder_files:
+        for path_file in self._KvPaths:
             """
             set will remove all identically varibles and
             if has only False, can be reload {False} else True in {False True}
             not reload...
             """
-            if len(set(map(path_file.endswith, files))) < 2:
-                try:
-                    with open(path_file, 'r', encoding='utf-8') as file:
-                        self.imports_kv_file(file.readlines())
-                        file.close()
-                except FileNotFoundError:
-                    pass
+            with open(path_file, 'r', encoding='utf-8') as file:
+                self.imports_kv_file(file.readlines())
+                file.close()
         # renew the path of files and imports
         self.update_imports()
 
@@ -296,9 +300,8 @@ class Parser(object):
             ['kv', width] if is a kv file and was possible to create widget.
         
         """
-        self.last_builder_files = Builder.files.copy()
         if first_load_file is True:
-            if self.dirname in self._paths:
+            if self.dirname in self._PyPaths:
                 sys.path.remove(self.dirname)
         else:
             self.unload_kv_files()
@@ -332,7 +335,7 @@ class Parser(object):
                         self.reload_py_files()
                     widget = self.reset_main_module()
                     
-                    write_logs(self.local_files, self.imports_files)
+                    self.write_logs()
                     file.close()
                     return  ['py', widget]
 

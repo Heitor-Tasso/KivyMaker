@@ -8,11 +8,10 @@ from kivy.uix.label import Label
 Builder.load_string("""
 
 <ButtonDrop>:
-    size_hint_y: None
-    height: '40dp'
+    size_hint_y:None
+    height:'40dp'
     name_image:''
-    on_press:
-        app.root2.change_screens(self.name_image)
+    on_press:app.root2.change_screens(self.name_image)
     canvas.before:
         Color:
             rgba: [1, 0, 0, 1]
@@ -31,7 +30,7 @@ Builder.load_string("""
     auto_touch_dismiss:True
     width:'200dp'
 
-""", filename = "KVdropdown.kv")
+""", filename = "KVDropdown.kv")
 
 class ButtonDrop(ButtonBehavior, Label):
     name_image = StringProperty('')

@@ -11,7 +11,7 @@ class "AnchorIcon" are imported from KvScreen.kv
 """
 
 Builder.load_string("""
-#: import KVicons KVutils.KVicons
+#: import KVicons KVUtils.KVicons
 
 <Chooser>:
     FileChooserIconLayout:
@@ -19,7 +19,7 @@ Builder.load_string("""
 
 <FilesPath>:
     BoxLayout:
-        orientation: 'vertical'
+        orientation:'vertical'
         TollBarTop:
             AnchorIcon:
                 KVButtonIcon:
@@ -39,12 +39,10 @@ Builder.load_string("""
                 KVButtonIcon:
                     icon_source:KVicons('add_white')
                     on_press: fc.load()
-            
-                
         Chooser:
             id: fc
 
-""", filename="KVfilechooser.kv")
+""", filename="KVFilechooser.kv")
 
 class Chooser(FileChooser):
     file = []

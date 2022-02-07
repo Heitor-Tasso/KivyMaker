@@ -1,5 +1,5 @@
 import os
-from lang.path import correct_path
+from lang.KVPath import correct_path
 
 sys_path = correct_path(os.path.split(__file__)[0])
 

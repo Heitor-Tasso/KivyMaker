@@ -9,16 +9,10 @@ from kivy.properties import (ListProperty, NumericProperty,
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.textinput import TextInput
 
-""" things that are not explicit in the code:
-
-function "hex" are imported in KvScreen.py
-class "KVIconButton" are loaded in uix.buttons.py
-"""
-
 Builder.load_string("""
 <KVIconInput>:
     hide:False
-    padding:[dp(10),dp(10),dp(10),dp(10)]
+    padding:'10dp'
     size_hint_y:None
     height:'60dp'
     BoxLayout:
@@ -27,7 +21,7 @@ Builder.load_string("""
             Color:
                 rgba:root.color_line
             Line:
-                rounded_rectangle:self.pos + self.size + root.radius + [100]
+                rounded_rectangle:(self.pos + self.size + root.radius + [100])
                 width:root.line_width
         canvas.before:
             Color:
@@ -38,7 +32,7 @@ Builder.load_string("""
                 radius:root.radius
         AnchorLayout:
             id:anchor_left
-            padding:[1,1,1,1]
+            padding:'1dp'
             size_hint_x:None
             width:root.icon_left_size[0]
             anchor_y:'center'
@@ -63,13 +57,13 @@ Builder.load_string("""
                 MyTextInput:
                     id:input
                     window_root:root
-                    background_color:[1,1,1,0]
+                    background_color:(1, 1, 1, 0)
                     password:root.hide
                     foreground_color:root.text_input_color
                     multiline:False
 
         AnchorLayout:
-            padding:[-1,1,7,1]
+            padding: [dp(-1), dp(1), dp(7), dp(1)]
             size_hint_x:None
             width:root.icon_right_size[0]
             anchor_y:'center'
@@ -97,7 +91,7 @@ Builder.load_string("""
             font_size:root.label_font_size
             color:root.label_defaut_color
 
-""", filename="KVinputs.kv")
+""", filename="KVInputs.kv")
 
 class MyTextInput(TextInput):
     window_root = ObjectProperty()
@@ -106,18 +100,18 @@ class MyTextInput(TextInput):
         return super(MyTextInput, self).insert_text(substring, from_undo=from_undo)
 
 class KVIconInput(AnchorLayout):
-    line_color = ListProperty([1,1,1,1])
+    line_color = ListProperty([1, 1, 1, 1])
     line_color_pos = ListProperty([0, 0, 0, 0])
     color_line = ListProperty([0, 0, 0, 0])
     line_width = NumericProperty(1.01)
 
-    background_color = ListProperty([0,0,0,0])
+    background_color = ListProperty([0, 0, 0, 0])
     
     radius = ListProperty([dp(15), dp(15), dp(15), dp(15)])
 
     icon_left = ObjectProperty()
     icon_left_state = StringProperty('toggle')#'toggle' or 'button'
-    icon_left_color = ListProperty([1,1,1,1])
+    icon_left_color = ListProperty([1, 1, 1, 1])
     icon_left_source = ListProperty([])
     icon_left_color_pos = ListProperty([0, 0, 0, 0])
     icon_left_size = ListProperty([dp(30), dp(23)])
@@ -125,20 +119,20 @@ class KVIconInput(AnchorLayout):
 
     icon_right = ObjectProperty()
     icon_right_state = StringProperty('toggle')#'toggle' or 'button'
-    icon_right_color = ListProperty([1,1,1,1])
+    icon_right_color = ListProperty([1, 1, 1, 1])
     icon_right_source = ListProperty([])
-    icon_right_color_pos = ListProperty([0, 0, 0,0])
+    icon_right_color_pos = ListProperty([0, 0, 0, 0])
     icon_right_size = ListProperty([dp(30), dp(23)])
     icon_right_effect_color = ListProperty([0, 0, 0, 0])
 
     label_text = StringProperty('')
     label_font_size = NumericProperty(dp(16))
-    label_defaut_color = ListProperty([1,1,1,1])
-    label_pos_color = ListProperty([1,1,1,1])
-    state_label = StringProperty()
+    label_defaut_color = ListProperty([1, 1, 1, 1])
+    label_pos_color = ListProperty([1, 1, 1, 1])
+    state_label = StringProperty('')
 
     input = ObjectProperty()
-    text_input_color = ListProperty([1,1,1,1])
+    text_input_color = ListProperty([1, 1, 1, 1])
 
     __events__ = (
         'on_touch_down', 'on_touch_move', 'on_touch_up', 'on_kv_post',
@@ -178,11 +172,11 @@ class KVIconInput(AnchorLayout):
         self.input = self.ids.input
         if not self.icon_left_source:
             self.ids.box.remove_widget(self.ids.anchor_left)
-            self.icon_left_size = [0,0]
+            self.icon_left_size = [0, 0]
             self.icon_left = False
         if not self.icon_right_source:
             self.ids.box.remove_widget(self.ids.anchor_right)
-            self.icon_right_size = [0,0]
+            self.icon_right_size = [0, 0]
             self.icon_right = False
         self.dispatch('on_init_input')
 
@@ -191,20 +185,20 @@ class KVIconInput(AnchorLayout):
         radius_right = self.radius[1] if self.radius[1] > self.radius[2] else self.radius[2]
         
         if radius_left > 13:
-            one_pad_x = radius_left-radius_left/2
-            two_pad_x = -one_pad_x/1.4
+            one_pad_x = radius_left-radius_left / 2
+            two_pad_x = -one_pad_x / 1.4
             self.ids.anchor_left.padding = [one_pad_x, 1, two_pad_x, 1]
             self.ids.anchor_input.padding = [one_pad_x, 1, one_pad_x, 1]
         else:
-            self.ids.anchor_left.padding = [7, 1, 15, 1]
+            self.ids.anchor_left.padding = [dp(7), dp(1), dp(15), dp(1)]
         
         if radius_right > dp(13):
-            one_pad_x = radius_right-radius_right/2
-            two_pad_x = -one_pad_x/1.7
+            one_pad_x = radius_right-radius_right / 2
+            two_pad_x = -one_pad_x / 1.7
             self.ids.anchor_right.padding = [two_pad_x, 1, one_pad_x, 1]
             # self.ids.anchor_input.padding = [one_pad_x, 1, two_pad_x, 1]
         else:
-            self.ids.anchor_left.padding = [7, 1, -3, 1]
+            self.ids.anchor_left.padding = [dp(7), dp(1), dp(-3), dp(1)]
             # self.ids.anchor_input.padding = [5, 1, 2, 1]
 
     def on_touch_down(self, touch):
@@ -266,14 +260,15 @@ class KVIconInput(AnchorLayout):
         pass
 
     def on_pos(self, *args):
-        self.pdentro = (self.x-dp(50)+self.radius[-1]/2.5, self.y+dp(40))
+        self.pdentro = ((self.x - dp(50) + self.radius[-1] / 2.5), (self.y + dp(40)))
         radius_left = self.radius[0] if self.radius[0] > self.radius[3] else self.radius[3] 
         if radius_left <= dp(13):
             radius_left = dp(13)
         if self.icon_left_size[0] == 0:
-            self.pfora = (self.x-dp(50)+radius_left, self.y+dp(10))
+            self.pfora = ((self.x - dp(50) + radius_left), (self.y + dp(10)))
         else:
-            self.pfora = (self.x-dp(50)+self.icon_left_size[0]+radius_left/2, self.y+dp(10))
+            x = (self.x - dp(50) + self.icon_left_size[0] + radius_left / 2)
+            self.pfora = (x, (self.y + dp(10)))
 
         if self.state_label == 'pdentro':
             self.ids.lbl.pos = self.pdentro

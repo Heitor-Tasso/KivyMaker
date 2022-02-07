@@ -2,12 +2,15 @@
 
 from functools import partial
 import traceback, os, sys
-from KVutils import KVget_path, KVphone
+from KVUtils import KVget_path, KVphone
+from time import time, sleep
 
 path = sys.path[0]
 path = path[0:path.find('Temp')] + r'Programs\Python\Python39\Lib\site-packages'
 sys.path.append(path)
 del path
+
+from lang.KVPath import correct_path, file_paths, _path_temp
 
 with open(KVget_path('lang/temp.py'), mode='w', encoding='utf-8') as file:
     file.write('\n')
@@ -16,8 +19,8 @@ with open(KVget_path('lang/temp.py'), mode='w', encoding='utf-8') as file:
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.codeinput import CodeInput
 
-from KVuix.KVfilechooser import FilesPath
-from KVuix.KVdropdown import MyDropDown
+from KVuix.KVFilechooser import FilesPath
+from KVuix.KVDropdown import MyDropDown
 from lang.import_file import Parser
 from kivymd.app import MDApp
 
@@ -26,9 +29,8 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 
 from kivy.utils import get_color_from_hex, platform
-from lang.path import correct_path
+from lang.KVPath import correct_path
 from kivy.metrics import dp
-from time import time
 
 from kivy.base import ExceptionHandler, ExceptionManager
 from kivy.properties import (
