@@ -107,6 +107,7 @@ class Init_screen(BoxLayout):
     def config(self, *args):
         # self.ids.input_file.input.text = r'C:\Users\IO\Downloads\SpotifyClone\Spotify.py'
         self.ids.input_file.input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\Pizzaria\PizzaManagement\PizzaOrder\main.py'
+        # self.ids.input_file.input.text =  r'D:\Trabalho\Programacao\Python\Aulas\Kivy\Aula-3\main.py'
         self.search_path()
         self.change_screens()
 
@@ -203,7 +204,7 @@ class Init_screen(BoxLayout):
         self.read_keys()
         if not self.reaload:
             return None
-
+        
         self.reaload = False
         self.remove_screen()
         if self.editors:
@@ -215,7 +216,8 @@ class Init_screen(BoxLayout):
         
         tmp = time()
         ext, widget = self.parser.import_widget(self.path_file, self.first_load, self.path)
-        print('Demorou: ', time()-tmp, 'Segundos para importar o App')        
+        dt = round(time()-tmp, 2)
+        print(f'Demorou: {dt} Segundos para importar o App!')   
         self.first_load = False
 
         if ext == 'Error':

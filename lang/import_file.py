@@ -2,6 +2,7 @@
 import sys, traceback, os
 from kivy.lang import Builder
 from kivy.utils import platform
+from kivy.clock import Clock
 
 from importlib import import_module, invalidate_caches
 from lang.KVPath import correct_path, file_paths
@@ -27,6 +28,7 @@ class Parser(object):
         self.local_files = []
         self.imports_files = []
         self.lines_main_file = []
+        self.schedules = []
         self._KvPaths = []
         self._PyPaths = []
 
@@ -44,11 +46,11 @@ class Parser(object):
         varibles = (
             'find_class', 'index_files',
             'name_file', 'name_of_class', 'dirname',
-            'extension', 'path_filename', 
+            'extension', 'path_filename',
         )
         big_data = (
             'local_files', 'imports_files',
-            '_KvPaths', '_PyPaths',
+            '_KvPaths', '_PyPaths', 'schedules',
         )
         
         text = ''
@@ -68,9 +70,10 @@ class Parser(object):
         Start recursion to get all imports
         '''
         locals_files = self.local_files[self.index_files::]
+        imports_files = self.imports_files[self.index_files::]
         self.index_files += len(locals_files)
         
-        for local in locals_files:
+        for local, f_import in zip(locals_files, imports_files):
             with open(local, mode='r', encoding='utf-8') as text:
                 for numL, line in enumerate(text.readlines()):
                     self.verify_line(line, numL)
@@ -136,7 +139,6 @@ class Parser(object):
             line = line.replace(class_app, 'SimulateApp')
             self.lines_main_file[numL] = line
             self.find_class = True
-
 
     def update_local_paths(self, local):
         '''
@@ -266,25 +268,28 @@ class Parser(object):
                     import_path += '.'
             
             pymodul = sys.modules.get(import_path)
-            reset_module(pymodul)
+            if pymodul is not None:
+                reset_module(pymodul)
 
     def import_main(self):
         # get the widget os temporary file
         if platform in {'win', 'linux', 'macosx'}:
-            invalidate_caches()
+            # invalidate_caches()
             return import_module(self.name_module_main)
         elif platform in {'android'}:
             return temp
 
-    def reset_main_module(self):
+    def reset_main_module(self, first_load_file):
         self.import_main()
 
         # reset this module if has
         modul = sys.modules.get(self.name_module_main)
-        if modul is not None:
+        if modul is not None and first_load_file is not True:
             reset_module(modul)
 
-        return getattr(self.import_main(), self.name_of_class)()
+        widget = getattr(self.import_main(), self.name_of_class)
+        return widget()
+        
 
     def import_widget(self, path_filename, first_load_file, path_kvmaker):
         """
@@ -300,15 +305,32 @@ class Parser(object):
             ['kv', width] if is a kv file and was possible to create widget.
         
         """
+
         if first_load_file is True:
+            # remove a pasta anterior
             if self.dirname in self._PyPaths:
                 sys.path.remove(self.dirname)
         else:
             self.unload_kv_files()
-                
+        
+        if self.schedules != []:
+            # unschedule functions os temp file
+            ev = Clock._root_event
+            while ev is not None:
+                callback = ev.get_callback()
+                if callback not in self.schedules:
+                    Clock.unschedule(callback)
+                ev = ev.next
+
         self.create_varibles()
         self.path_filename = correct_path(path_filename)
         self.dirname, file_path = os.path.split(self.path_filename)
+
+        # get Clock functions os KvMaker
+        ev = Clock._root_event
+        while ev is not None:
+            self.schedules.append(ev.get_callback())
+            ev = ev.next
 
         if self.dirname not in sys.path:
             # it needs to be like that because Android only accepts that
@@ -333,7 +355,7 @@ class Parser(object):
                     self.read_kvs()
                     if first_load_file is False:
                         self.reload_py_files()
-                    widget = self.reset_main_module()
+                    widget = self.reset_main_module(first_load_file)
                     
                     self.write_logs()
                     file.close()
