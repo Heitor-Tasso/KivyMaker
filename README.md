@@ -18,6 +18,5 @@ se quiser saber mais sobre. Click no link abaixo:
 
 <p align="center">
   <img src="examples/1.jpg" width="250">
-  <p width="1"></p>
   <img src="examples/2.jpg" width="250">
 </p>
