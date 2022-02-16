@@ -7,11 +7,11 @@
 		width: 500px;
             }
             </style>
-            <img src="./examples/1.jpg"></img>
-            <img src="./examples/2.jpg"></img>
-            <img src="./examples/3.jpg"></img>
-            <img src="./examples/4.jpg"></img>
-            <img src="./examples/5.jpg"></img> 
+            <img src="/examples/1.jpg"></img>
+            <img src="/examples/2.jpg"></img>
+            <img src="/examples/3.jpg"></img>
+            <img src="/examples/4.jpg"></img>
+            <img src="/examples/5.jpg"></img> 
        </div>
     </foreignObject>
 </svg>
