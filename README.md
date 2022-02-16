@@ -16,7 +16,7 @@ se quiser saber mais sobre. Click no link abaixo:
 
 # KivyMaker Screens
 
-<p align="center">
+<div>
   <img src="examples/1.jpg" width="250">
   <img src="examples/2.jpg" width="250">
-</p>
+</div>
