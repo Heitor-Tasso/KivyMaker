@@ -18,5 +18,5 @@ se quiser saber mais sobre. Click no link abaixo:
 
 <div>
   <img src="examples/1.jpg" width="250">
-  <img src="examples/2.jpg" width="250">
+  <img align="right" src="examples/2.jpg" width="250">
 </div>
