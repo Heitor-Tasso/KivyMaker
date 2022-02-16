@@ -3,15 +3,15 @@
         <div xmlns="http://www.w3.org/1999/xhtml">
             <style>
             img {
-                height: 300px;
-		width: 500px;
+                height: 250px;
+		width: 100px;
             }
             </style>
-            <img src="/1.jpg">
-            <img src="./2.jpg">
-            <img src="examples/3.jpg">
-            <img src="4.jpg">
-            <img src="5.jpg">
+            <img src="https://github.com/SrGambiarra/KivyMaker/tree/main/examples/1.jpg">
+            <img src="https://github.com/SrGambiarra/KivyMaker/tree/main/examples/2.jpg">
+            <img src="https://github.com/SrGambiarra/KivyMaker/tree/main/examples/3.jpg">
+            <img src="https://github.com/SrGambiarra/KivyMaker/tree/main/examples/4.jpg">
+            <img src="https://github.com/SrGambiarra/KivyMaker/tree/main/examples/5.jpg">
        </div>
     </foreignObject>
 </svg>
