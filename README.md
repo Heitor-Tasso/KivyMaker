@@ -17,11 +17,6 @@ se quiser saber mais sobre. Click no link abaixo:
 # KivyMaker Screens
 
 <p align="center">
-   <style>
-       img {
-           border: 4px solid #36FFFF
-       }
-  </style>
-  <img src="examples/1.jpg" width="250" title="hover text">
+  <img src="examples/1.jpg" width="250" border: "4px solid #36FFFF" title="hover text">
   <img src="examples/2.jpg" width="250" alt="accessibility text">
 </p>
