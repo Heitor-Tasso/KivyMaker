@@ -1,4 +1,4 @@
-# KivyMaker
+﻿# KivyMaker
 Aplicativo parecido com AndroidStudio, porém, para usar com a 
 biblioteca Kivy
 
@@ -14,14 +14,8 @@ Fiz um vídeo no meu canal mostrando as funcionaliades e tudo mais,
 se quiser saber mais sobre. Click no link abaixo:
  - https://www.youtube.com/channel/UCtzSRMR6zsv8ywCmm3O2XqQ
 
-# Tela Inicial
-![IMG One](examples/one.png)
+# KivyMaker Screens
 
-# File Chooser
-![IMG Two](examples/two.png)
-
-# Tela de Reload com TabPhone
-![IMG Three](examples/three.png)
-
-# Tela de Reload com CellPhone
-![IMG Four](examples/four.png)
+<div align="center">
+    <img src="examples/phones.svg" width="400" height="400" alt="css-in-readme">
+</div>
