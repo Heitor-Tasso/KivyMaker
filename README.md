@@ -16,6 +16,7 @@ se quiser saber mais sobre. Click no link abaixo:
 
 # KivyMaker Screens
 
-<div align="center">
-    <img src="examples/phones.svg" width="100%" height="100%" alt="css-in-readme">
-</div>
+<p align="center">
+  <img src="examples/1.jpg" width="350" title="hover text">
+  <img src="examples/2.jpg" width="350" alt="accessibility text">
+</p>
