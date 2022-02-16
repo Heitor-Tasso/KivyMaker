@@ -2,21 +2,16 @@
     <foreignObject width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml">
             <style>
-            h1 {
-                color: red;
-                animation: mymove 2s infinite;
-            }
-
-            @keyframes mymove {
-                from {
-                    color: red;
-                }
-                to {
-                    color: yellow;
-                }
+            img {
+                height: 300px;
+		width: 500px;
             }
             </style>
-            <h1>HELLO WORLD!</h1>
-        </div>
+            <img src="./examples/1.jpg"></img>
+            <img src="./examples/2.jpg"></img>
+            <img src="./examples/3.jpg"></img>
+            <img src="./examples/4.jpg"></img>
+            <img src="./examples/5.jpg"></img> 
+       </div>
     </foreignObject>
 </svg>
