@@ -17,8 +17,8 @@ se quiser saber mais sobre. Click no link abaixo:
 # KivyMaker Screens
 
 <div>
- <img src="examples/1.jpg" width="250">
- <img src="examples/2.jpg" width="250">
- <img src="examples/3.jpg" width="250">
- <img src="examples/4.jpg" width="250">
+ <img src="examples/1.jpg" width="250" align="center">
+ <img src="examples/2.jpg" width="250" align="center">
+ <img src="examples/3.jpg" width="250" align="center">
+ <img src="examples/4.jpg" width="250" align="center">
 </div>
