@@ -15,12 +15,13 @@ se quiser saber mais sobre. Click no link abaixo:
  - https://www.youtube.com/channel/UCtzSRMR6zsv8ywCmm3O2XqQ
 
 # KivyMaker Screens
-<style>
-img {
- border: 4px solid;
-}
-</style>
+
 <p align="center">
+   <style>
+       img {
+           border: 4px solid #36FFFF
+       }
+  </style>
   <img src="examples/1.jpg" width="250" title="hover text">
   <img src="examples/2.jpg" width="250" alt="accessibility text">
 </p>
