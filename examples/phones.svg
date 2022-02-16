@@ -3,8 +3,7 @@
         <div xmlns="http://www.w3.org/1999/xhtml">
             <style>
             img {
-                height: 250px;
-		width: 100px;
+                border: 5px solid #555;
             }
             </style>
             <img src="https://github.com/SrGambiarra/KivyMaker/tree/main/examples/1.jpg">
