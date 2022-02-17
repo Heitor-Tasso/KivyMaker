@@ -37,5 +37,5 @@ se quiser saber mais sobre. Click no link abaixo:
  - Editor
 <img src="examples/6.jpg" align="center">
 
-<label font-size="14">Options</label>
+<span font-size="40">Options</span>
 <img src="examples/7.jpg" align="center">
