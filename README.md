@@ -38,5 +38,5 @@ se quiser saber mais sobre. Click no link abaixo:
 <img src="examples/6.jpg" align="center">
 
 
-# - Options
+<font size="50">- Options</font>
 <img src="examples/7.jpg" align="center">
