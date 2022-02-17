@@ -3,12 +3,12 @@ __all__ = ['EffectBehavior', ]
 from kivy.graphics import (
     CanvasBase, Color,
     Ellipse, ScissorPush,
-    ScissorPop, RoundedRectangle
-    )
+    ScissorPop, RoundedRectangle,
+)
 from kivy.graphics.stencil_instructions import (
     StencilPop, StencilPush,
-    StencilUnUse, StencilUse
-    )
+    StencilUnUse, StencilUse,
+)
 from kivy.properties import ListProperty, NumericProperty, StringProperty
 
 from kivy.uix.relativelayout import RelativeLayout
@@ -35,7 +35,7 @@ class EffectBehavior(object):
     #To know if is a RoudedWidget or RectangleWidget...
     type_button = StringProperty('')
     #radius if RoundedWidget
-    radius = ListProperty([dp(15),dp(15),dp(15),dp(15)])
+    radius = ListProperty([dp(15), dp(15), dp(15), dp(15)])
 
     def __init__(self, **kwargs):
         super(EffectBehavior, self).__init__(**kwargs)
@@ -66,7 +66,7 @@ class EffectBehavior(object):
                 StencilUse()
                 self.ripple_col_instruction = Color(rgba=self.color_effect)
                 self.ripple_ellipse = Ellipse(
-                    size=(self.radius_ellipse for x in range(2)),
+                    size=(self.radius_ellipse for _ in range(2)),
                     pos=(x-self.radius_ellipse/2 for x in self.touch_pos),
                 )
                 StencilUnUse()
@@ -80,7 +80,7 @@ class EffectBehavior(object):
                 ScissorPush(pos=self.pos, size=self.size)
                 self.ripple_col_instruction = Color(rgba=self.color_effect)
                 self.ripple_ellipse = Ellipse(
-                    size=(self.radius_ellipse for x in range(2)),
+                    size=(self.radius_ellipse for _ in range(2)),
                     pos=(x-self.radius_ellipse/2 for x in self.touch_pos),
                 )
                 ScissorPop()
@@ -104,7 +104,7 @@ class EffectBehavior(object):
     def set_ellipse(self, instance, value):
         if not self.ripple_ellipse:
             return
-        self.ripple_ellipse.size = (self.radius_ellipse for x in range(2))
+        self.ripple_ellipse.size = (self.radius_ellipse for _ in range(2))
         self.ripple_ellipse.pos = (x-self.radius_ellipse/2 for x in self.touch_pos)
 
     def reset_CanvasBase(self, *args):

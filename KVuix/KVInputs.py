@@ -10,6 +10,9 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.textinput import TextInput
 
 Builder.load_string("""
+#: import KVButtonIcon KVuix.KVIcon.KVButtonIcon
+#: import KVAnchorIcon KVuix.KVIcon.KVAnchorIcon
+
 <KVIconInput>:
     hide:False
     padding:'10dp'
@@ -30,19 +33,13 @@ Builder.load_string("""
                 size:self.size
                 pos:self.pos
                 radius:root.radius
-        AnchorLayout:
+        KVAnchorIcon:
             id:anchor_left
-            padding:'1dp'
-            size_hint_x:None
-            width:root.icon_left_size[0]
-            anchor_y:'center'
-            KVIconButton:
+            width:root.icon_left_size[0]+dp(30)
+            KVButtonIcon:
                 id:button_left
-                allow_stretch:True
                 name:'icon_left'
-                keep_ratio:False
-                size_hint_y:None
-                height:root.icon_left_size[1]
+                size:root.icon_left_size
                 defaut_color:root.icon_left_color
                 pos_color:root.icon_left_color_pos
                 sources:root.icon_left_source
@@ -50,6 +47,7 @@ Builder.load_string("""
                 state_button:root.icon_left_state
         AnchorLayout:
             id:anchor_input
+            padding: '1dp'
             BoxLayout:
                 orientation:'vertical'
                 Widget:
@@ -62,20 +60,15 @@ Builder.load_string("""
                     foreground_color:root.text_input_color
                     multiline:False
 
-        AnchorLayout:
+        KVAnchorIcon:
             padding: [dp(-1), dp(1), dp(7), dp(1)]
-            size_hint_x:None
-            width:root.icon_right_size[0]
-            anchor_y:'center'
+            width:root.icon_left_size[0]+dp(30)
             id:anchor_right
-            KVIconButton:
+            KVButtonIcon:
                 id:button_right
                 name:'icon_right'
                 window_root:root
-                allow_stretch:True
-                keep_ratio:False
-                size_hint_y:None
-                height:root.icon_right_size[1]
+                size:root.icon_right_size
                 sources:root.icon_right_source
                 defaut_color:root.icon_right_color
                 pos_color:root.icon_right_color_pos
@@ -114,7 +107,7 @@ class KVIconInput(AnchorLayout):
     icon_left_color = ListProperty([1, 1, 1, 1])
     icon_left_source = ListProperty([])
     icon_left_color_pos = ListProperty([0, 0, 0, 0])
-    icon_left_size = ListProperty([dp(30), dp(23)])
+    icon_left_size = ListProperty([dp(30), dp(25)])
     icon_left_effect_color = ListProperty([0, 0, 0, 0])
 
     icon_right = ObjectProperty()
@@ -122,7 +115,7 @@ class KVIconInput(AnchorLayout):
     icon_right_color = ListProperty([1, 1, 1, 1])
     icon_right_source = ListProperty([])
     icon_right_color_pos = ListProperty([0, 0, 0, 0])
-    icon_right_size = ListProperty([dp(30), dp(23)])
+    icon_right_size = ListProperty([dp(30), dp(25)])
     icon_right_effect_color = ListProperty([0, 0, 0, 0])
 
     label_text = StringProperty('')

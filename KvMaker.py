@@ -18,6 +18,8 @@ with open(KVget_path('lang/temp.py'), mode='w', encoding='utf-8') as file:
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.codeinput import CodeInput
+from kivy.uix.image import Image
+from kivy.uix.behaviors import ButtonBehavior, ToggleButtonBehavior
 
 from KVuix.KVFilechooser import FilesPath
 from KVuix.KVDropdown import MyDropDown

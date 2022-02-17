@@ -7,11 +7,12 @@ from kivy.clock import Clock
 
 function "hex" are imported in KvScreen.py
 class "ToolBarTop" are imported from KvScreen.kv
-class "AnchorIcon" are imported from KvScreen.kv
 """
 
 Builder.load_string("""
 #: import KVicons KVUtils.KVicons
+#: import KVButtonIcon KVuix.KVIcon.KVButtonIcon
+#: import KVAnchorIcon KVuix.KVIcon.KVAnchorIcon
 
 <Chooser>:
     FileChooserIconLayout:
@@ -21,23 +22,23 @@ Builder.load_string("""
     BoxLayout:
         orientation:'vertical'
         TollBarTop:
-            AnchorIcon:
+            KVAnchorIcon:
                 KVButtonIcon:
-                    icon_source:KVicons('back')
+                    source:KVicons('back')
                     on_press: root.dismiss()
             Widget:
-            AnchorIcon:
+            KVAnchorIcon:
                 KVButtonIcon:
-                    icon_source:KVicons('grid')
+                    source:KVicons('grid')
                     on_press: fc.view_mode = 'icon'
-            AnchorIcon:
+            KVAnchorIcon:
                 KVButtonIcon:
-                    icon_source:KVicons('list-play')
+                    source:KVicons('list-play')
                     on_press: fc.view_mode = 'list'
             Widget:
-            AnchorIcon:
+            KVAnchorIcon:
                 KVButtonIcon:
-                    icon_source:KVicons('add_white')
+                    source:KVicons('add_white')
                     on_press: fc.load()
         Chooser:
             id: fc

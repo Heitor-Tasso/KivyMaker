@@ -3,40 +3,9 @@
 #: import hex kivy.utils.get_color_from_hex
 #: import KVicons KVUtils.KVicons
 #: import KVphone KVUtils.KVphone
-
-<AnchorIcon@AnchorLayout>:
-    size_hint_x:None
-    width:'70dp'
-    anchor_x:'center'
-    anchor_y:'center'
-
-<KVButtonIcon@Button>:
-    canvas:
-        Color:
-            rgba:self.icon_color
-        Rectangle:
-            size:self.size
-            pos:self.pos
-            source:self.icon_source
-    icon_color:[1, 1, 1, 1]
-    icon_source:''
-    size_hint:None, None
-    size:'40dp', '40dp'
-    background_color:[0, 0, 0, 0]
-
-<KVToggleButtonIcon@ToggleButton>:
-    icon_color:[1, 1, 1, 1]
-    icon_source:''
-    canvas:
-        Color:
-            rgba:self.icon_color
-        Rectangle:
-            size:self.size
-            pos:self.pos
-            source:self.icon_source
-    size_hint:None, None
-    size:'30dp', '30dp'
-    background_color:[0, 0, 0, 0]
+#: import KVButtonIcon KVuix.KVIcon.KVButtonIcon
+#: import KVToggleButtonIcon KVuix.KVIcon.KVToggleButtonIcon
+#: import KVAnchorIcon KVuix.KVIcon.KVAnchorIcon
 
 <TollBarTop@BoxLayout>:
     size_hint_y:None
@@ -58,16 +27,16 @@
             BoxLayout:
                 orientation:'vertical'
                 TollBarTop:
-                    AnchorIcon:
+                    KVAnchorIcon:
                         KVButtonIcon:
-                            icon_source:KVicons('exit')
+                            source:KVicons('exit')
                             on_release:app.stop(app)
                     Label:
                         text:'Configurando'
                         font_size: '20sp'
-                    AnchorIcon:
+                    KVAnchorIcon:
                         KVButtonIcon:
-                            icon_source:KVicons('help')
+                            source:KVicons('help')
                                
                          
                 AnchorLayout:
@@ -157,39 +126,46 @@
                         size:self.size
                         pos:self.pos
                 TollBarTop:
-                    AnchorIcon:
+                    anc_width:'50dp' if self.width < dp(450) else '70dp'
+                    KVAnchorIcon:
+                        width: self.parent.anc_width
                         KVButtonIcon:
-                            icon_source:KVicons('back')
+                            source:KVicons('back')
                             on_release:root.volta()
                     Widget:
-                    AnchorIcon:
+                    KVAnchorIcon:
+                        width: self.parent.anc_width
                         KVButtonIcon:
                             icon_color:root.orange_sunset
-                            icon_source:KVicons('editor')
+                            source:KVicons('editor')
                             on_press:
                                 root.create_editor() if root.editors == [] else \
                                 root.hide_editor(root.index_editor-1)
-                    AnchorIcon:
+                    KVAnchorIcon:
+                        width: self.parent.anc_width
                         KVToggleButtonIcon:
                             icon_color:root.orange_sunset
-                            icon_source:KVicons('repetition')
+                            source:KVicons('repetition')
                             id:bt_toggle
                             on_state: root.reload(self.state)
-                    AnchorIcon:
+                    KVAnchorIcon:
+                        width: self.parent.anc_width
                         KVToggleButtonIcon:
                             icon_color:root.orange_sunset
-                            icon_source:KVicons('terminal2')
+                            source:KVicons('terminal2')
                             on_state:root.update_debug(self.state)
                             id:btn_debug
-                    AnchorIcon:
+                    KVAnchorIcon:
+                        width: self.parent.anc_width
                         KVButtonIcon:
                             icon_color:[1, 1, 1, 1]
-                            icon_source:KVicons('reload1')
+                            source:KVicons('reload1')
                             on_press: root.allow_loading()
                     Widget:
-                    AnchorIcon:
+                    KVAnchorIcon:
+                        width: self.parent.anc_width
                         KVButtonIcon:
-                            icon_source:KVicons('exit')
+                            source:KVicons('exit')
                             on_release:app.stop(app)
                 BoxLayout:
                     id:boxCode
@@ -223,17 +199,17 @@
                                     id: tab_manager
                                     size_hint_y: None
                                     height: '45dp'
-                                    AnchorIcon:
+                                    KVAnchorIcon:
                                         KVButtonIcon:
-                                            icon_source:KVicons('zoom-out')
+                                            source:KVicons('zoom-out')
                                             on_press:smartphone.width = smartphone.width + dp(30)
                                             size:'30dp', '30dp'
-                                    AnchorIcon:
+                                    KVAnchorIcon:
                                         KVButtonIcon:
-                                            icon_source:KVicons('zoom-in')
+                                            source:KVicons('zoom-in')
                                             on_press:smartphone.width = smartphone.width - dp(30)
                                             size:'30dp', '30dp'
-                                    AnchorIcon:
+                                    KVAnchorIcon:
                                         ToggleButton:
                                             canvas:
                                                 Clear
@@ -255,9 +231,9 @@
                                             angle:0
                                             on_state:
                                                 self.angle = 90 if self.state == 'down' else 0
-                                    AnchorIcon:
+                                    KVAnchorIcon:
                                         KVButtonIcon:
-                                            icon_source: KVicons('three-dots')
+                                            source: KVicons('three-dots')
                                             size:'30dp', '30dp'
                                             on_release: root.dropdown.open(self)
                                 AnchorLayout:
