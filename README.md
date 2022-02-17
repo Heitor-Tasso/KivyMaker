@@ -17,7 +17,7 @@ se quiser saber mais sobre. Click no link abaixo:
 # KivyMaker Screens
 
  - Search
-<img src="examples/1.jpg" align="center" height="600">
+<img src="examples/1.jpg" align="center" height="600" width="450">
 
 
  - FileChooser
