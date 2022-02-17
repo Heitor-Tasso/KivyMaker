@@ -36,6 +36,6 @@ se quiser saber mais sobre. Click no link abaixo:
 
  - Editor
 <div>
- <img src="examples/4.jpg" width="250" align="center">
- <img src="examples/5.jpg" width="250" align="center">
+ <img src="examples/6.jpg" width="250" align="center">
+ <img src="examples/7.jpg" width="250" align="center">
 </div>
