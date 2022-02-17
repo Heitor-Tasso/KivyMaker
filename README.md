@@ -16,25 +16,25 @@ se quiser saber mais sobre. Click no link abaixo:
 
 # KivyMaker Screens
 
- - Search
+# Search
 <img src="examples/1.jpg" align="center" height="600">
 
 
- - FileChooser
+# FileChooser
 <div>
  <img src="examples/2.jpg" align="center" height="600">
  <img src="examples/3.jpg" align="center" height="600">
 </div>
 
 
- - SmartPhone
+# SmartPhone
 <div>
  <img src="examples/4.jpg" align="center" height="600">
  <img src="examples/5.jpg" align="center" height="600">
 </div>
 
 
- - Editor
+# Editor
 <img src="examples/6.jpg" align="center">
 
 # Options:
