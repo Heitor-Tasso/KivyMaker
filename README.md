@@ -15,8 +15,10 @@ se quiser saber mais sobre. Click no link abaixo:
  - https://www.youtube.com/channel/UCtzSRMR6zsv8ywCmm3O2XqQ
 
 # KivyMaker Screens
+
  - Search
 <img src="examples/1.jpg" width="250" align="center">
+
 
  - FileChooser
 <div>
@@ -24,7 +26,15 @@ se quiser saber mais sobre. Click no link abaixo:
  <img src="examples/3.jpg" width="250" align="center">
 </div>
 
+
  - SmartPhone
+<div>
+ <img src="examples/4.jpg" width="250" align="center">
+ <img src="examples/5.jpg" width="250" align="center">
+</div>
+
+
+ - Editor
 <div>
  <img src="examples/4.jpg" width="250" align="center">
  <img src="examples/5.jpg" width="250" align="center">
