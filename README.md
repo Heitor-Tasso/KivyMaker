@@ -17,20 +17,20 @@ se quiser saber mais sobre. Click no link abaixo:
 # KivyMaker Screens
 
  - Search
-<img src="examples/1.jpg" align="center" height="600" width="450">
+<img src="examples/1.jpg" align="center" height="600">
 
 
  - FileChooser
 <div>
- <img src="examples/2.jpg" align="center">
- <img src="examples/3.jpg" align="center">
+ <img src="examples/2.jpg" align="center" height="600">
+ <img src="examples/3.jpg" align="center" height="600">
 </div>
 
 
  - SmartPhone
 <div>
- <img src="examples/4.jpg" align="center">
- <img src="examples/5.jpg" align="center">
+ <img src="examples/4.jpg" align="center" height="600">
+ <img src="examples/5.jpg" align="center" height="600">
 </div>
 
 
