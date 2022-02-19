@@ -37,6 +37,7 @@ from kivy.metrics import dp
 from kivy.base import ExceptionHandler, ExceptionManager
 from kivy.properties import (
     StringProperty, ObjectProperty, NumericProperty,
+    DictProperty
 )
 
 if platform in {'win', 'linux', 'macosx'}:
@@ -74,9 +75,11 @@ class Init_screen(BoxLayout):
 
     path, file = os.path.split(__file__)
 
+    property_smartphone = DictProperty()
     properties_screens = {
         'ipad':{'scale':0.81, 'height':0.775, 'x':0, 'y':0},
         'samsung-s10':{'scale':0.768, 'height':0.79, 'x':dp(1.5), 'y':dp(2)},
+        's10-one-camera':{'scale':0.94, 'height':0.81, 'x':dp(-1.5), 'y':dp(2.5)},
     }
 
     def __init__(self, **kwargs):
@@ -102,30 +105,35 @@ class Init_screen(BoxLayout):
         self.parser = Parser()
         self.chooser = FilesPath(self, self._system_path)
         self.debug = Debug()
-        self.dropdown = MyDropDown(['Ipad', 'Samsung Galaxy S10'], self.properties_screens)
+        self.property_smartphone = self.properties_screens['samsung-s10']
+        self.dropdown = MyDropDown(['Ipad', 'Samsung Galaxy S10', 'Galaxy S10 One Camera'], self.properties_screens)
 
         # Clock.schedule_once(self.config)
-    
+
     def config(self, *args):
         # self.ids.input_file.input.text = r'C:\Users\IO\Downloads\SpotifyClone\Spotify.py'
-        self.ids.input_file.input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\Pizzaria\PizzaManagement\PizzaOrder\main.py'
+        self.ids.input_file.text_input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\Pizzaria\PizzaManagement\PizzaOrder\main.py'
         # self.ids.input_file.input.text =  r'D:\Trabalho\Programacao\Python\Aulas\Kivy\Aula-3\main.py'
         self.search_path()
         self.change_screens()
 
     def change_screens(self, name_screen=''):
-        BoxScreen = self.ids.conteiner
+        SmartImage = self.ids.conteiner
         if name_screen == '':
-            w, h = BoxScreen.size
+            if not SmartImage.change_screen:
+                return None
+            
+            w, h = SmartImage.size
             if w < dp(500) and w > dp(300):
-                BoxScreen.phone_img = KVphone('samsung-s10')
-                BoxScreen.property = self.properties_screens['samsung-s10']
+                SmartImage.source = KVphone('samsung-s10')
+                self.property_smartphone = self.properties_screens['samsung-s10']
             elif w > dp(500):
-                BoxScreen.phone_img = KVphone('ipad')
-                BoxScreen.property = self.properties_screens['ipad']
+                SmartImage.source = KVphone('ipad')
+                self.property_smartphone = self.properties_screens['ipad']
         else:
-            BoxScreen.phone_img = KVphone(name_screen)
-            BoxScreen.property = self.properties_screens[name_screen]
+            SmartImage.source = KVphone(name_screen)
+            self.property_smartphone = self.properties_screens[name_screen]
+        self.ids.smartphone.width -= 1/100
 
     def update_debug(self, state):
         if state == 'down':
@@ -260,7 +268,7 @@ class Init_screen(BoxLayout):
                 with open(self.path_file, 'w') as new_file:
                     new_file.write('')
                     new_file.close()
-                self.ids.input_file.input.text = self.path_file
+                self.ids.input_file.text_input.text = self.path_file
                 self.search_path()
 
     def suported_files(self, name_file:str) -> bool:
@@ -279,7 +287,7 @@ class Init_screen(BoxLayout):
             return False
 
     def search_path(self):
-        path_input = self.ids.input_file.input.text
+        path_input = self.ids.input_file.text_input.text
         if os.path.isfile(path_input):
             self.validade_local(path_input)
             self.charg()

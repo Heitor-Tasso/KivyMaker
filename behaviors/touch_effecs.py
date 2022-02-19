@@ -30,7 +30,7 @@ class EffectBehavior(object):
     #To know the touch.pos of the widget
     touch_pos = ListProperty([0, 0])
     #Color background_effect
-    color_effect = ListProperty((1,1,1,0.5))
+    effect_color = ListProperty((1,1,1,0.5))
 
     #To know if is a RoudedWidget or RectangleWidget...
     type_button = StringProperty('')
@@ -49,7 +49,7 @@ class EffectBehavior(object):
         self.ripple_col_instruction = None
 
     def ripple_show(self, touch):
-        Animation.cancel_all(self, 'radius_ellipse', 'color_effect')
+        Animation.cancel_all(self, 'radius_ellipse', 'effect_color')
         self.reset_CanvasBase()
         if isinstance(self, RelativeLayout):
             pos_x, pos_y = self.to_window(*self.pos)
@@ -64,7 +64,7 @@ class EffectBehavior(object):
                     radius=self.radius[::-1]
                 )
                 StencilUse()
-                self.ripple_col_instruction = Color(rgba=self.color_effect)
+                self.ripple_col_instruction = Color(rgba=self.effect_color)
                 self.ripple_ellipse = Ellipse(
                     size=(self.radius_ellipse for _ in range(2)),
                     pos=(x-self.radius_ellipse/2 for x in self.touch_pos),
@@ -78,7 +78,7 @@ class EffectBehavior(object):
 
             else:
                 ScissorPush(pos=self.pos, size=self.size)
-                self.ripple_col_instruction = Color(rgba=self.color_effect)
+                self.ripple_col_instruction = Color(rgba=self.effect_color)
                 self.ripple_ellipse = Ellipse(
                     size=(self.radius_ellipse for _ in range(2)),
                     pos=(x-self.radius_ellipse/2 for x in self.touch_pos),
@@ -87,14 +87,14 @@ class EffectBehavior(object):
 
         Animation(radius_ellipse=max(self.size)*2,
                   t=self.transition_in,
-                  color_effect=self.color_effect,
+                  effect_color=self.effect_color,
                   duration=self.duration_in).start(self)
 
     def ripple_fade(self):
-        Animation.cancel_all(self, 'radius_ellipse', 'color_effect')
+        Animation.cancel_all(self, 'radius_ellipse', 'effect_color')
         anim = Animation(
             radius_ellipse=max(self.size)*2,
-            color_effect=self.color_effect,
+            effect_color=self.effect_color,
             t=self.transition_out,
             duration=self.duration_out
         )
