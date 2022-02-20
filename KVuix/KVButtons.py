@@ -15,6 +15,7 @@ Builder.load_string("""
 
 <KVButtonEffect>:
     background_color:[1, 1, 1, 0]
+    radius: [0, 0, 0, 0]
     canvas.before:
         Color:
             rgba:self.background
@@ -41,8 +42,7 @@ class KVButtonEffect(EffectBehavior, ButtonBehavior, Label):
 
     def __init__(self, **kwargs):
         super(KVButtonEffect, self).__init__(**kwargs)
-        self.type_button = 'RoundedButton'
-        self.radius = [15,15,15,15]
+        self.type_button = 'Rounded'
         Window.bind(mouse_pos=self.on_mouse_pos)
         Clock.schedule_once(self.set_colors)
     
@@ -69,14 +69,18 @@ class KVButtonEffect(EffectBehavior, ButtonBehavior, Label):
             self.ripple_fade()
         return super(KVButtonEffect, self).on_touch_up(touch)
 
-    def on_mouse_pos(self, *args):
-        if not self.get_root_window():
-            return
-        if self.collide_point(*self.to_widget(*args[1])):
-            Animation(background = self.color_background[1], d=0.5, 
-                  t='out_quad').start(self)
+    def on_mouse_pos(self, window, mouse_pos):
+        if self.collide_point(*self.to_widget(*mouse_pos)):
+            anim = Animation(
+                background=self.color_background[1],
+                d=0.5, t='out_quad',
+            )
+            anim.start(self)
             self.background_line = self.color_line[1]
         else:
-            Animation(background = self.color_background[0], d=0.5, 
-                  t='out_quad').start(self)
+            anim = Animation(
+                background=self.color_background[0],
+                d=0.5, t='out_quad',
+            )
+            anim.start(self)
             self.background_line = self.color_line[0]

@@ -25,7 +25,7 @@ Builder.load_string("""
             rectangle:[*self.pos, *self.size]
             width:dp(1.5)
 
-<MyDropDown>:
+<PhonesDropDown>:
     auto_width:False
     auto_touch_dismiss:True
     width:'200dp'
@@ -35,23 +35,9 @@ Builder.load_string("""
 class ButtonDrop(ButtonBehavior, Label):
     name_image = StringProperty('')
 
-class MyDropDown(DropDown):
+class PhonesDropDown(DropDown):
     def __init__(self, names, dict, **kwargs):
         super().__init__(**kwargs)
         for name, key in zip(names, dict.keys()):
             self.add_widget(ButtonDrop(text=name, name_image=key))
 
-    def on_touch_up(self, touch):
-        if not self.collide_point(*touch.pos):
-            return False
-
-        if self.auto_touch_dismiss:
-            self.dismiss()        
-        return super().on_touch_up(touch)
-    
-    def on_touch_down(self, touch):
-        if not self.collide_point(*touch.pos):
-            self.dismiss()
-            return False
-        
-        return super().on_touch_down(touch)

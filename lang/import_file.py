@@ -7,7 +7,7 @@ from kivy.clock import Clock
 from importlib import import_module, invalidate_caches
 from lang.KVPath import correct_path, file_paths
 from lang.reload_module import reset_module
-from KVUtils import KVget_path
+from KVUtils import KVGet_path
 from textwrap import dedent
 
 if platform == 'android':
@@ -162,12 +162,16 @@ class Parser(object):
                 self.imports_files.append(local)
                 break
 
-    def files_project(self):
+    def files_project(self, kvmaker_path):
         self.last_local = self.dirname[0:self.dirname.rfind('/')]
         self._PyPaths = file_paths(self.last_local, ('.py', ))
         self._KvPaths = file_paths(self.last_local, ('.kv', ))
-        if self.path_filename in self._PyPaths:
-            self._PyPaths.remove(self.path_filename)
+
+        for path in file_paths(kvmaker_path, ('.py', '.kv')):
+            if path in self._PyPaths:
+                self._PyPaths.remove(path)
+            elif path in self._KvPaths:
+                self._KvPaths.remove(path)
     
     def construc_temp_file(self, filename):
         '''
@@ -291,7 +295,7 @@ class Parser(object):
         return widget()
         
 
-    def import_widget(self, path_filename, first_load_file, path_kvmaker):
+    def import_widget(self, path_filename, first_load_file, kvmaker_path):
         """
         Get the root Widget of the project being run. 
 
@@ -337,7 +341,7 @@ class Parser(object):
             sys.path.insert(0, self.dirname)
         # change python work area
         os.chdir(self.dirname)
-        self.files_project()
+        self.files_project(kvmaker_path)
         self.name_file, self.extension = file_path.split('.')
 
         with open(self.path_filename, mode='r', encoding='utf-8') as file:
@@ -350,7 +354,7 @@ class Parser(object):
                     # start recursion and parse the main file
                     self.update_imports()
 
-                    self.construc_temp_file(KVget_path('lang/temp.py'))
+                    self.construc_temp_file(KVGet_path('lang/temp.py'))
 
                     self.read_kvs()
                     if first_load_file is False:

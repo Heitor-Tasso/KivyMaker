@@ -9,7 +9,10 @@ from kivy.graphics.stencil_instructions import (
     StencilPop, StencilPush,
     StencilUnUse, StencilUse,
 )
-from kivy.properties import ListProperty, NumericProperty, StringProperty
+from kivy.properties import (
+    ListProperty, NumericProperty,
+    StringProperty,
+)
 
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.animation import Animation
@@ -17,8 +20,8 @@ from kivy.metrics import dp
 
 class EffectBehavior(object):
     #Size Ellipse
-    radius_ellipse_default = NumericProperty(10)
-    radius_ellipse = NumericProperty(10)
+    radius_ellipse_default = NumericProperty(dp(10))
+    radius_ellipse = NumericProperty(dp(10))
 
     #Type transition
     transition_in = StringProperty('in_cubic')
@@ -30,12 +33,12 @@ class EffectBehavior(object):
     #To know the touch.pos of the widget
     touch_pos = ListProperty([0, 0])
     #Color background_effect
-    effect_color = ListProperty((1,1,1,0.5))
+    effect_color = ListProperty([1, 1, 1, 0.5])
 
-    #To know if is a RoudedWidget or RectangleWidget...
-    type_button = StringProperty('')
-    #radius if RoundedWidget
-    radius = ListProperty([dp(15), dp(15), dp(15), dp(15)])
+    #To know if is a Rouded or Rectangle...
+    type_button = StringProperty('Rounded')
+    #radius if Rounded
+    radius_effect = ListProperty([dp(10), dp(10), dp(10), dp(10)])
 
     def __init__(self, **kwargs):
         super(EffectBehavior, self).__init__(**kwargs)
@@ -53,15 +56,16 @@ class EffectBehavior(object):
         self.reset_CanvasBase()
         if isinstance(self, RelativeLayout):
             pos_x, pos_y = self.to_window(*self.pos)
-            self.touch_pos = (touch.x - pos_x, touch.y - pos_y)
+            self.touch_pos = (touch.x-pos_x, touch.y-pos_y)
         else:
             self.touch_pos = (touch.x, touch.y)
+        
         with self.ripple_pane:
-            if self.type_button == 'RoundedButton':
+            if self.type_button == 'Rounded':
                 StencilPush()
                 RoundedRectangle(
-                    size=self.size, pos=self.pos, 
-                    radius=self.radius[::-1]
+                    size=self.size, pos=self.pos,
+                    radius=self.radius_effect[::-1],
                 )
                 StencilUse()
                 self.ripple_col_instruction = Color(rgba=self.effect_color)
@@ -72,11 +76,11 @@ class EffectBehavior(object):
                 StencilUnUse()
                 RoundedRectangle(
                     size=self.size, pos=self.pos, 
-                    radius=self.radius[::-1]
+                    radius=self.radius_effect[::-1],
                 )
                 StencilPop()
 
-            else:
+            elif self.type_button == 'Rectangle':
                 ScissorPush(pos=self.pos, size=self.size)
                 self.ripple_col_instruction = Color(rgba=self.effect_color)
                 self.ripple_ellipse = Ellipse(
@@ -85,10 +89,13 @@ class EffectBehavior(object):
                 )
                 ScissorPop()
 
-        Animation(radius_ellipse=max(self.size)*2,
-                  t=self.transition_in,
-                  effect_color=self.effect_color,
-                  duration=self.duration_in).start(self)
+        anim = Animation(
+            radius_ellipse=(max(self.size)*2),
+            t=self.transition_in,
+            effect_color=self.effect_color,
+            duration=self.duration_in,
+        )
+        anim.start(self)
 
     def ripple_fade(self):
         Animation.cancel_all(self, 'radius_ellipse', 'effect_color')
@@ -103,7 +110,8 @@ class EffectBehavior(object):
 
     def set_ellipse(self, instance, value):
         if not self.ripple_ellipse:
-            return
+            return None
+
         self.ripple_ellipse.size = (self.radius_ellipse for _ in range(2))
         self.ripple_ellipse.pos = (x-self.radius_ellipse/2 for x in self.touch_pos)
 

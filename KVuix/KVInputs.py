@@ -69,7 +69,9 @@ Builder.load_string("""
 class MyTextInput(TextInput):
     window_root = ObjectProperty()
     def insert_text(self, substring, from_undo=False):
-        self.window_root.dispatch('on_input_text')
+        if self.window_root is not None:
+            self.window_root.dispatch('on_input_text')
+        
         return super(MyTextInput, self).insert_text(substring, from_undo=from_undo)
 
 class KVIconInput(AnchorLayout):
@@ -94,7 +96,7 @@ class KVIconInput(AnchorLayout):
 
     icon_right = ObjectProperty(False)
     icon_right_type = StringProperty('') # 'toggle' or 'button'
-    icon_right_color = ListProperty([1, 1, 1, 1])
+    icon_right_color = ListProperty([1, 1, 1, 0.5])
     icon_right_source = StringProperty('')
     icon_right_pos_sources = ListProperty([])
     icon_right_state_sources = ListProperty([])
@@ -108,25 +110,16 @@ class KVIconInput(AnchorLayout):
     label_pos_color = ListProperty([1, 1, 1, 1])
     state_label = StringProperty('')
 
-    text_input_color = ListProperty([1, 1, 1, 1])
+    text_input_color = ListProperty([0, 0, 0, 0])
 
     def __init__(self, **kwargs):
         self.register_event_type('on_input_press')
         self.register_event_type('on_input_release')
         self.register_event_type('on_input_text')
 
-        self.register_event_type('on_icon_left_mouse_inside')
-        self.register_event_type('on_icon_left_mouse_outside')
-        self.register_event_type('on_icon_left_press')
-        self.register_event_type('on_icon_left_release')
-        self.register_event_type('on_icon_left_state')
-
-        self.register_event_type('on_icon_right_mouse_inside')
-        self.register_event_type('on_icon_right_mouse_outside')
-        self.register_event_type('on_icon_right_press')
-        self.register_event_type('on_icon_right_release')
-        self.register_event_type('on_icon_right_state')
-
+        cb = ('_mouse_inside', '_mouse_outside', '_press', '_release', '_state')
+        set(map(lambda x: self.register_event_type(f'on_icon_left{x}'), cb))
+    
         self.bind(
             icon_right_size=self.properties_icon_right,
             icon_right_source=self.properties_icon_right,

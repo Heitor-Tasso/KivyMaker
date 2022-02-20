@@ -44,5 +44,4 @@ def search_file_paths(words:tuple, path_filename:str, extensions:tuple):
                 arq.close()
         except UnicodeDecodeError:
             pass
-            #print('Não foi possivel ler o arquivo:\n', local_file)
     return researches

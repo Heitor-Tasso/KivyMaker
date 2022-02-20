@@ -10,7 +10,7 @@ class "ToolBarTop" are imported from KvScreen.kv
 """
 
 Builder.load_string("""
-#: import KVicons KVUtils.KVicons
+#: import KVIcons KVUtils.KVIcons
 #: import KVButtonIcon KVuix.KVIcon.KVButtonIcon
 #: import KVAnchorIcon KVuix.KVIcon.KVAnchorIcon
 
@@ -24,21 +24,21 @@ Builder.load_string("""
         TollBarTop:
             KVAnchorIcon:
                 KVButtonIcon:
-                    source:KVicons('back')
+                    source:KVIcons('back')
                     on_press: root.dismiss()
             Widget:
             KVAnchorIcon:
                 KVButtonIcon:
-                    source:KVicons('grid')
+                    source:KVIcons('grid')
                     on_press: fc.view_mode = 'icon'
             KVAnchorIcon:
                 KVButtonIcon:
-                    source:KVicons('list-play')
+                    source:KVIcons('list-play')
                     on_press: fc.view_mode = 'list'
             Widget:
             KVAnchorIcon:
                 KVButtonIcon:
-                    source:KVicons('add_white')
+                    source:KVIcons('add_white')
                     on_press: fc.load()
         Chooser:
             id: fc

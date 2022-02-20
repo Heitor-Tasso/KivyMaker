@@ -2,7 +2,7 @@
 
 from functools import partial
 import traceback, os, sys
-from KVUtils import KVget_path, KVphone
+from KVUtils import KVGet_path, KVPhone, KVLog
 from time import time, sleep
 
 path = sys.path[0]
@@ -12,17 +12,14 @@ del path
 
 from lang.KVPath import correct_path, file_paths, _path_temp
 
-with open(KVget_path('lang/temp.py'), mode='w', encoding='utf-8') as file:
+with open(KVGet_path('lang/temp.py'), mode='w', encoding='utf-8') as file:
     file.write('\n')
     file.close()
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.codeinput import CodeInput
-from kivy.uix.image import Image
-from kivy.uix.behaviors import ButtonBehavior, ToggleButtonBehavior
 
 from KVuix.KVFilechooser import FilesPath
-from KVuix.KVDropdown import MyDropDown
 from lang.import_file import Parser
 from kivymd.app import MDApp
 
@@ -36,14 +33,14 @@ from kivy.metrics import dp
 
 from kivy.base import ExceptionHandler, ExceptionManager
 from kivy.properties import (
-    StringProperty, ObjectProperty, NumericProperty,
-    DictProperty
+    StringProperty, ObjectProperty,
+    NumericProperty, DictProperty
 )
 
 if platform in {'win', 'linux', 'macosx'}:
     import keyboard
 
-Builder.load_file(KVget_path('KvMaker.kv'))
+Builder.load_file(KVGet_path('KvMaker.kv'))
 
 class Debug(BoxLayout):
     pass
@@ -75,8 +72,11 @@ class Init_screen(BoxLayout):
 
     path, file = os.path.split(__file__)
 
-    property_smartphone = DictProperty()
-    properties_screens = {
+    prop_phone = DictProperty()
+    phones = [
+        'Ipad', 'Samsung Galaxy S10', 'Galaxy S10 One Camera',
+    ]
+    props_phones = {
         'ipad':{'scale':0.81, 'height':0.775, 'x':0, 'y':0},
         'samsung-s10':{'scale':0.768, 'height':0.79, 'x':dp(1.5), 'y':dp(2)},
         's10-one-camera':{'scale':0.94, 'height':0.81, 'x':dp(-1.5), 'y':dp(2.5)},
@@ -84,9 +84,9 @@ class Init_screen(BoxLayout):
 
     def __init__(self, **kwargs):
         super(Init_screen, self).__init__(**kwargs)
-        print('Voce esta rodando usando -> ', platform)
-        print('Local main -> ', self.path)
-        print('File main ->', self.file)
+        KVLog('PLATFORM', platform)
+        KVLog('MAIN-PATH', self.path)
+        KVLog('MAIN-FILE', self.file)
 
         Clock.max_iteration = 60
 
@@ -105,8 +105,7 @@ class Init_screen(BoxLayout):
         self.parser = Parser()
         self.chooser = FilesPath(self, self._system_path)
         self.debug = Debug()
-        self.property_smartphone = self.properties_screens['samsung-s10']
-        self.dropdown = MyDropDown(['Ipad', 'Samsung Galaxy S10', 'Galaxy S10 One Camera'], self.properties_screens)
+        self.prop_phone = self.props_phones['samsung-s10']
 
         # Clock.schedule_once(self.config)
 
@@ -118,22 +117,22 @@ class Init_screen(BoxLayout):
         self.change_screens()
 
     def change_screens(self, name_screen=''):
-        SmartImage = self.ids.conteiner
+        SmartImage = self.ids.img_phone
         if name_screen == '':
             if not SmartImage.change_screen:
                 return None
             
             w, h = SmartImage.size
             if w < dp(500) and w > dp(300):
-                SmartImage.source = KVphone('samsung-s10')
-                self.property_smartphone = self.properties_screens['samsung-s10']
+                SmartImage.source = KVPhone('samsung-s10')
+                self.prop_phone = self.props_phones['samsung-s10']
             elif w > dp(500):
-                SmartImage.source = KVphone('ipad')
-                self.property_smartphone = self.properties_screens['ipad']
+                SmartImage.source = KVPhone('ipad')
+                self.prop_phone = self.props_phones['ipad']
         else:
-            SmartImage.source = KVphone(name_screen)
-            self.property_smartphone = self.properties_screens[name_screen]
-        self.ids.smartphone.width -= 1/100
+            SmartImage.source = KVPhone(name_screen)
+            self.prop_phone = self.props_phones[name_screen]
+        self.ids.phone.width -= 1/100
 
     def update_debug(self, state):
         if state == 'down':
@@ -190,9 +189,9 @@ class Init_screen(BoxLayout):
             Clock.unschedule(self.carrega)
 
     def remove_screen(self):
-        filhos = self.ids.smartphone.children
+        filhos = self.ids.phone.children
         if filhos:
-            self.ids.smartphone.remove_widget(filhos[0])
+            self.ids.phone.remove_widget(filhos[0])
 
     def win_keyboard(self, *args):
         if keyboard.is_pressed('ctrl'):
@@ -207,7 +206,7 @@ class Init_screen(BoxLayout):
     def allow_loading(self, *args):
         if self.ids.bt_toggle.state == 'down':
             self.quantos_s += 1
-            print(f'Ctrl + s is pressed {self.quantos_s}')
+            KVLog('RELOAD', f'Ctrl+S {self.quantos_s} vezes')
             self.reaload = True
 
     def carrega(self, *args):
@@ -220,14 +219,15 @@ class Init_screen(BoxLayout):
         if self.editors:
             editor = self.editors[self.index_editor-1]
             if editor.focus == True:
-                print('Escreveu texto do editor no arquivo -> ', self.path_file)
-                with open(self.path_file, mode='w', encoding='utf-8') as texto:
-                    texto.write(editor.text)
+                KVLog('UPDATE-FILE-ON_EDITOR', self.path_file)
+                with open(self.path_file, mode='w', encoding='utf-8') as file:
+                    file.write(editor.text)
+                    file.close()
         
         tmp = time()
         ext, widget = self.parser.import_widget(self.path_file, self.first_load, self.path)
         dt = round(time()-tmp, 2)
-        print(f'Demorou: {dt} Segundos para importar o App!')   
+        KVLog('TIME-RELOAD', f'{dt} Segundos')   
         self.first_load = False
 
         if ext == 'Error':
@@ -241,16 +241,20 @@ class Init_screen(BoxLayout):
         if ext == 'py':
             widget.root2 = self
             setattr(MDApp, '__new_app', widget)
-            self.ids.smartphone.add_widget(widget.start())
+            self.ids.phone.add_widget(widget.start())
             widget.dispatch('on_start')
         elif ext == 'kv':
-            self.ids.smartphone.add_widget(widget)
+            self.ids.phone.add_widget(widget)
         
         if self.editors == []:
             self.create_editor()
             self.hide_editor(self.index_editor-1)
         
-        self.current_editor.text = ''.join(self.parser.lines_main_file)
+        KVLog('UPDATE-EDITOR', self.path_file)
+        with open(self.path_file, mode='r', encoding='utf-8') as file:
+            self.current_editor.text = file.read()
+            file.close()
+
         self.ids.btn_debug.state = 'normal'
 
     def popup_get_folder(self, *args):
@@ -259,12 +263,13 @@ class Init_screen(BoxLayout):
     def path_file_created(self, text_input, create=False):
         folder_file = self.popup_get_folder('Folder')
         if not folder_file:
-            return
+            return None
+        
         if self.validade_local(text_input):
-            self.path_file = folder_file + '/' + text_input
+            self.path_file = f'{folder_file}/{text_input}'
             if create:
-                print('created file')
-                print(self.path_file, folder_file)
+                KVLog('CREATE-FILE', self.path_file)
+                KVLog('FILE-PATH', folder_file)
                 with open(self.path_file, 'w') as new_file:
                     new_file.write('')
                     new_file.close()
@@ -322,6 +327,16 @@ class Init_screen(BoxLayout):
     def volta_debug(self):
         self.ids.btn_debug.state = 'normal'
         self.ids.bt_toggle.state = 'down'
+    
+    def start_zoom_phone(self, dt, wid):
+        func = Clock.schedule_interval(partial(self.do_zoom_phone, dt, wid), 0.1)
+        return func
+
+    def do_zoom_phone(self, dt, wid, time):
+        wid.width += dt
+
+    def stop_zoom_phone(self, func):
+        Clock.unschedule(func)
 
 class LogException(ExceptionHandler):
 

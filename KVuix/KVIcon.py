@@ -5,12 +5,14 @@ from kivy.uix.image import Image
 from kivy.uix.anchorlayout import AnchorLayout
 
 from kivy.properties import (
-    ListProperty, StringProperty,
+    ListProperty, ObjectProperty,
 )
+
+from kivy.graphics import Color, Rectangle
+
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.clock import Clock
-from kivy.metrics import dp
 
 Builder.load_string('''
 
@@ -20,14 +22,14 @@ Builder.load_string('''
     anchor_x:'center'
     anchor_y:'center'
 
-<-KVButtonIcon>:
+<KVButtonIcon>:
     icon_color:[1, 1, 1, 1]
     size_hint:None, None
     size:'40dp', '40dp'
     mipmap:True
     allow_strech:True
     keep_ratio:False
-    canvas:
+    canvas.before:
         Clear
         Color:
             rgba:self.icon_color
@@ -39,17 +41,33 @@ Builder.load_string('''
 <KVToggleButtonIcon>:
     size:'30dp', '30dp'
 
-''', filename="KVIcons.kv")
+''', filename="KVIcon.kv")
 
 class KVAnchorIcon(AnchorLayout):
-    pass
+    background_color = ListProperty([0, 0, 0, 0])
+    back = ObjectProperty(None)
+
+    def on_background_color(self, *args):
+        self.unbind(size=self.update_background)
+        self.unbind(pos=self.update_background)
+
+        self.bind(size=self.update_background)
+        self.bind(pos=self.update_background)
+
+        with self.canvas.before:
+            Color(rgba=self.background_color)
+            self.back = Rectangle(size=self.size, pos=self.pos)
+
+    def update_background(self, *args):
+        self.back.size = self.size
+        self.back.pos = self.pos
 
 class KVButtonIcon(EffectBehavior, ButtonBehavior, Image):
+    effect_color = ListProperty([0, 0, 0, 0])
     defaut_color = ListProperty([1, 1, 1, 1])
     pos_color = ListProperty([0, 0, 0, 0])
     pos_sources = ListProperty([])
     state_sources = ListProperty([])
-    radius_effect = ListProperty([dp(15), dp(15), dp(15), dp(15)])
     enter_pos = False
     
     def __init__(self, **kwargs):
@@ -58,16 +76,14 @@ class KVButtonIcon(EffectBehavior, ButtonBehavior, Image):
         self.bind(
             pos_sources=self.config,
             state_sources=self.config,
-            radius_effect=self.config,
             defaut_color=self.config,
         )
         super(KVButtonIcon, self).__init__(**kwargs)
-        self.type_button = 'RoundedButton'
+        self.type_button = 'Rounded'
         Window.bind(mouse_pos=self.on_mouse_pos)
         Clock.schedule_once(self.config)
 
     def config(self, *args):
-        self.radius = self.radius_effect
         if len(self.pos_sources) == 2:
             self.source = self.pos_sources[0]
         if len(self.state_sources) == 2:
@@ -108,14 +124,14 @@ class KVButtonIcon(EffectBehavior, ButtonBehavior, Image):
             return False
 
         if self.collide_point(*touch.pos):
-            if self.effect_color:
-                self.ripple_show(touch)
+            touch.grab(self)
+            self.ripple_show(touch)
             return super(KVButtonIcon, self).on_touch_down(touch)
-        else:
-            return False
+        return False
     
     def on_touch_up(self, touch):
         if touch.grab_current is self:
+            touch.ungrab(self)
             self.ripple_fade()
         return super(KVButtonIcon, self).on_touch_up(touch)
     
@@ -125,4 +141,4 @@ class KVButtonIcon(EffectBehavior, ButtonBehavior, Image):
         pass
 
 class KVToggleButtonIcon(ToggleButtonBehavior, KVButtonIcon):
-    state_button = StringProperty('toggle')
+    pass

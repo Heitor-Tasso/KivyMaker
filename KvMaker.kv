@@ -1,11 +1,14 @@
-#: import KVIconInput KVuix.KVInputs.KVIconInput
-#: import KVButtonEffect KVuix.KVButtons.KVButtonEffect
 #: import hex kivy.utils.get_color_from_hex
-#: import KVicons KVUtils.KVicons
-#: import KVphone KVUtils.KVphone
+#: import Clock kivy.clock.Clock
+
+#: import KVIcons KVUtils.KVIcons
+#: import KVPhone KVUtils.KVPhone
+#: import KVButtonEffect KVuix.KVButtons.KVButtonEffect
 #: import KVButtonIcon KVuix.KVIcon.KVButtonIcon
 #: import KVToggleButtonIcon KVuix.KVIcon.KVToggleButtonIcon
 #: import KVAnchorIcon KVuix.KVIcon.KVAnchorIcon
+#: import KVIconInput KVuix.KVInputs.KVIconInput
+#: import PhonesDropDown KVuix.KVDropdown.PhonesDropDown
 
 <TollBarTop@BoxLayout>:
     size_hint_y:None
@@ -20,6 +23,7 @@
 <Init_screen>:
     orientation:'vertical'
     orange_sunset: hex('#ff5555')
+
     ScreenManager:
         id:tl
         Screen:
@@ -29,14 +33,14 @@
                 TollBarTop:
                     KVAnchorIcon:
                         KVButtonIcon:
-                            source:KVicons('exit')
+                            source:KVIcons('exit')
                             on_release:app.stop(app)
                     Label:
                         text:'Configurando'
                         font_size: '20sp'
                     KVAnchorIcon:
                         KVButtonIcon:
-                            source:KVicons('help')
+                            source:KVIcons('help')
 
                 AnchorLayout:
                     pad:root.width/5
@@ -72,7 +76,7 @@
 
                                 label_text:'Open File'
                                 icon_right_pos_sources:
-                                    [KVicons('create'), KVicons('path')]
+                                    [KVIcons('create'), KVIcons('path')]
                                 icon_right_type:'button'
 
                                 on_icon_right_release:root.search_path()
@@ -97,7 +101,7 @@
                                 icon_right_color_pos:[10,0,0,1]
                                 background_color:[1,1,1,.75]
 
-                                icon_right_source:KVicons('add_white')
+                                icon_right_source:KVIcons('add_white')
                                 icon_right_type:'button'
                                 label_text:'Create File'
 
@@ -126,14 +130,14 @@
                     KVAnchorIcon:
                         width: self.parent.anc_width
                         KVButtonIcon:
-                            source:KVicons('back')
+                            source:KVIcons('back')
                             on_release:root.volta()
                     Widget:
                     KVAnchorIcon:
                         width: self.parent.anc_width
                         KVButtonIcon:
                             icon_color:root.orange_sunset
-                            source:KVicons('editor')
+                            source:KVIcons('editor')
                             on_press:
                                 root.create_editor() if root.editors == [] else \
                                 root.hide_editor(root.index_editor-1)
@@ -141,27 +145,27 @@
                         width: self.parent.anc_width
                         KVToggleButtonIcon:
                             icon_color:root.orange_sunset
-                            source:KVicons('repetition')
+                            source:KVIcons('repetition')
                             id:bt_toggle
                             on_state: root.reload(self.state)
                     KVAnchorIcon:
                         width: self.parent.anc_width
                         KVToggleButtonIcon:
                             icon_color:root.orange_sunset
-                            source:KVicons('terminal2')
+                            source:KVIcons('terminal2')
                             on_state:root.update_debug(self.state)
                             id:btn_debug
                     KVAnchorIcon:
                         width: self.parent.anc_width
                         KVButtonIcon:
                             icon_color:[1, 1, 1, 1]
-                            source:KVicons('reload1')
+                            source:KVIcons('reload1')
                             on_press: root.allow_loading()
                     Widget:
                     KVAnchorIcon:
                         width: self.parent.anc_width
                         KVButtonIcon:
-                            source:KVicons('exit')
+                            source:KVIcons('exit')
                             on_release:app.stop(app)
                 BoxLayout:
                     id:boxCode
@@ -197,13 +201,21 @@
                                     height: '45dp'
                                     KVAnchorIcon:
                                         KVButtonIcon:
-                                            source:KVicons('zoom-out')
-                                            on_press:smartphone.width = smartphone.width + dp(30)
+                                            source:KVIcons('zoom-out')
+                                            func: None
+                                            on_press:
+                                                self.func = root.start_zoom_phone(dp(10), phone)
+                                            on_release:
+                                                root.stop_zoom_phone(self.func)
                                             size:'30dp', '30dp'
                                     KVAnchorIcon:
                                         KVButtonIcon:
-                                            source:KVicons('zoom-in')
-                                            on_press:smartphone.width = smartphone.width - dp(30)
+                                            source:KVIcons('zoom-in')
+                                            func: None
+                                            on_press:
+                                                self.func = root.start_zoom_phone(dp(-10), phone)
+                                            on_release:
+                                                root.stop_zoom_phone(self.func)
                                             size:'30dp', '30dp'
                                     KVAnchorIcon:
                                         ToggleButton:
@@ -218,7 +230,7 @@
                                                 Rectangle:
                                                     size:self.size
                                                     pos:self.pos
-                                                    source:KVicons('iphone-mobile')
+                                                    source:KVIcons('iphone-mobile')
                                                 PopMatrix
                                             size_hint:None, None
                                             size:'30dp', '30dp'
@@ -229,20 +241,23 @@
                                                 self.angle = 90 if self.state == 'down' else 0
                                     KVAnchorIcon:
                                         KVButtonIcon:
-                                            source: KVicons('three-dots')
+                                            source: KVIcons('three-dots')
                                             size:'30dp', '30dp'
-                                            on_release: root.dropdown.open(self)
+                                            can_open: True
+                                            drop: None
+                                            on_press:
+                                                PhonesDropDown(root.phones, root.props_phones).open(self)
                                     KVAnchorIcon:
                                         KVToggleButtonIcon:
                                             state_sources:
-                                                [KVicons('change-screen'), KVicons('change-screen-white')]
+                                                [KVIcons('change-screen'), KVIcons('change-screen-white')]
                                             on_state:
-                                                conteiner.change_screen = False if self.state == 'down' else True
+                                                img_phone.change_screen = False if self.state == 'down' else True
                                             size:'30dp', '30dp'
                                 AnchorLayout:
                                     padding:[dp(15), dp(15), dp(15), dp(15)]
                                     Image:
-                                        id:conteiner
+                                        id:img_phone
                                         canvas:
                                             Clear
                                             Rotate:
@@ -254,12 +269,11 @@
                                             Rectangle:
                                                 size: self.size
                                                 pos: self.pos
-                                                # source: self.phone_img
                                                 texture:self.texture
                                         on_size:
                                             root.change_screens()
-                                        source:KVphone('samsung-s10')
-                                        property:root.property_smartphone or {'scale':1, 'height':1, 'x':0, 'y':0}
+                                        source:KVPhone('samsung-s10')
+                                        prop:root.prop_phone or {'scale':1, 'height':1, 'x':0, 'y':0}
                                         change_screen: True
                                         allow_strech: True
                                         keep_ratio: False
@@ -269,13 +283,13 @@
                                             size: (0, 0)
                                             BoxStencil:
                                                 size:
-                                                    (smartphone.width*sct.scale, smartphone.height*sct.scale)
+                                                    (phone.width*sct.scale, phone.height*sct.scale)
                                                 x:
-                                                    conteiner.x + (conteiner.width/2) - \
-                                                    (self.width/2) + conteiner.property['x']
+                                                    img_phone.x + (img_phone.width/2) - \
+                                                    (self.width/2) + img_phone.prop['x']
                                                 y:
-                                                    conteiner.y + (conteiner.height/2) - \
-                                                    (self.height/2) + conteiner.property['y']
+                                                    img_phone.y + (img_phone.height/2) - \
+                                                    (self.height/2) + img_phone.prop['y']
                                                 Scatter:
                                                     do_rotation: False
                                                     do_scale: False
@@ -283,15 +297,15 @@
                                                     do_collide_after_children: True
                                                     auto_bring_to_front: False
                                                     scale:
-                                                        (conteiner.width*conteiner.property['scale']) / smartphone.width
+                                                        (img_phone.width*img_phone.prop['scale']) / phone.width
                                                     id:sct
                                                     AnchorLayout:
-                                                        id:smartphone
+                                                        id:phone
                                                         size_hint:None, None
                                                         width: dp(400)
                                                         height:
-                                                            (conteiner.height**2) * conteiner.property['height'] / \
-                                                            (conteiner.height*sct.scale + 1/100)
+                                                            (img_phone.height**2) * img_phone.prop['height'] / \
+                                                            (img_phone.height*sct.scale + 1/100)
 <BoxStencil@BoxLayout+StencilView>:
     size_hint:None, None
 
