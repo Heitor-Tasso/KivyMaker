@@ -1,3 +1,4 @@
+from kivy.properties import ObjectProperty
 from kivy.uix.modalview import ModalView
 from kivy.uix.filechooser import FileChooser
 from kivy.lang import Builder
@@ -15,10 +16,12 @@ Builder.load_string("""
 #: import KVAnchorIcon KVuix.KVIcon.KVAnchorIcon
 
 <Chooser>:
+    root:None
     FileChooserIconLayout:
     FileChooserListLayout:
 
 <FilesPath>:
+
     BoxLayout:
         orientation:'vertical'
         TollBarTop:
@@ -47,24 +50,36 @@ Builder.load_string("""
 
 class Chooser(FileChooser):
     file = []
-    app = None
+    app = ObjectProperty(None)
 
-    def load(self, *args):
+    def entry_released(self, entry, touch):
+        super().entry_released(entry, touch)
+
+        if self.file != self.selection:
+            self.file = self.selection
+            return None
+        
         if self.file:
             self.app.validade_local(self.file[0])
             self.app.charg()
-            self.file = []
-
-    def entry_released(self, entry, touch):
-        if self.file == self.selection:
-            Clock.schedule_once(self.load)
-        else:
-            self.file = self.selection
-        return super().entry_released(entry, touch)
+            self.file.clear()
 
 class FilesPath(ModalView):
+    opened = False
     def __init__(self, app, path='', **kwargs):
         super().__init__(**kwargs)
         self.ids.fc.app = app
         if path != '':
             self.ids.fc.path = path
+
+    def open(self, *largs, **kwargs):
+        if not self.opened:
+            self.opened = True
+            return super().open(*largs, **kwargs)
+        return True
+    
+    def dismiss(self, *largs, **kwargs):
+        if self.opened:
+            self.opened = False
+            return super().dismiss(*largs, **kwargs)
+        return False

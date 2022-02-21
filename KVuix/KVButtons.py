@@ -33,6 +33,7 @@ Builder.load_string("""
 
 class KVButtonEffect(EffectBehavior, ButtonBehavior, Label):
     #Colors
+    effect_color = ListProperty([0, 0, 0, 0])
     background_line = ListProperty([0, 0, 0, 0])
     background = ListProperty([0, 0, 0, 0])
     color_background = ListProperty([[0.05, 0.0, 0.4, 1], [0.0625, 0.0, 0.5, 1]])

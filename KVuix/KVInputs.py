@@ -96,7 +96,7 @@ class KVIconInput(AnchorLayout):
 
     icon_right = ObjectProperty(False)
     icon_right_type = StringProperty('') # 'toggle' or 'button'
-    icon_right_color = ListProperty([1, 1, 1, 0.5])
+    icon_right_color = ListProperty([1, 1, 1, 1])
     icon_right_source = StringProperty('')
     icon_right_pos_sources = ListProperty([])
     icon_right_state_sources = ListProperty([])
@@ -118,7 +118,8 @@ class KVIconInput(AnchorLayout):
         self.register_event_type('on_input_text')
 
         cb = ('_mouse_inside', '_mouse_outside', '_press', '_release', '_state')
-        set(map(lambda x: self.register_event_type(f'on_icon_left{x}'), cb))
+        for i in {'left', 'right'}:
+            set(map(lambda x: self.register_event_type(f'on_icon_{i}{x}'), cb))
     
         self.bind(
             icon_right_size=self.properties_icon_right,

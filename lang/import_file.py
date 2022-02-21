@@ -7,7 +7,7 @@ from kivy.clock import Clock
 from importlib import import_module, invalidate_caches
 from lang.KVPath import correct_path, file_paths
 from lang.reload_module import reset_module
-from KVUtils import KVGet_path
+from KVUtils import KVGet_path, KVLog
 from textwrap import dedent
 
 if platform == 'android':
@@ -278,19 +278,17 @@ class Parser(object):
     def import_main(self):
         # get the widget os temporary file
         if platform in {'win', 'linux', 'macosx'}:
-            # invalidate_caches()
+            invalidate_caches()
             return import_module(self.name_module_main)
         elif platform in {'android'}:
             return temp
 
     def reset_main_module(self, first_load_file):
         self.import_main()
-
-        # reset this module if has
         modul = sys.modules.get(self.name_module_main)
-        if modul is not None and first_load_file is not True:
-            reset_module(modul)
-
+        self.unload_kv_files()
+        Builder.unload_file(self.name_of_class)
+        reset_module(modul)
         widget = getattr(self.import_main(), self.name_of_class)
         return widget()
         
@@ -302,7 +300,7 @@ class Parser(object):
         Args:
             `path_filename` (str): main file local of the project.
             `first_load_file` (bool): False if this project has imported else True.
-            `path_kvmaker` (str): local of KivyMaker app.
+            `kvmaker_path` (str): local of KivyMaker app.
 
         Returns:
             ['py', widget, name_file] if is a python file and was possible to create widget.
@@ -355,7 +353,6 @@ class Parser(object):
                     self.update_imports()
 
                     self.construc_temp_file(KVGet_path('lang/temp.py'))
-
                     self.read_kvs()
                     if first_load_file is False:
                         self.reload_py_files()

@@ -1,17 +1,28 @@
-# Python == 3.9.7
+__version__ = '3.9.7'
+__author__ = 'Sr.Gambiarra | HeitorTasso'
+
+__about__ = '''
+  Esse programa serve para facilitar o desenvolvimento de apps feito com Kivy ou KivyMD.
+    
+    - Como ele faz isso?
+        Com o KivyMaker podemos atualizar o nosso App,
+        sem ter que reiniciar o script pelo terminal ou IDE.
+        Isso agiliza o processo de contrução da interface
+        e até mesmo para adicionar funcionalidades à UI.
+'''
 
 from functools import partial
 import traceback, os, sys
 from KVUtils import KVGet_path, KVPhone, KVLog
-from time import time, sleep
+from lang.KVPath import correct_path
+from time import time
 
-path = sys.path[0]
-path = path[0:path.find('Temp')] + r'Programs\Python\Python39\Lib\site-packages'
-sys.path.append(path)
-del path
+# Adds support for your workspace packages
+pathPython = sys.path[0]
+pathWin = f"{pathPython[0:pathPython.find('Temp')]}Programs\Python\Python39\Lib\site-packages"
+sys.path.append(pathWin)
 
-from lang.KVPath import correct_path, file_paths, _path_temp
-
+# Clear temp file
 with open(KVGet_path('lang/temp.py'), mode='w', encoding='utf-8') as file:
     file.write('\n')
     file.close()
@@ -28,7 +39,6 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 
 from kivy.utils import get_color_from_hex, platform
-from lang.KVPath import correct_path
 from kivy.metrics import dp
 
 from kivy.base import ExceptionHandler, ExceptionManager
@@ -89,7 +99,7 @@ class Init_screen(BoxLayout):
         KVLog('MAIN-FILE', self.file)
 
         Clock.max_iteration = 60
-
+        
         local_plat = {'win':'C:\\Users', 'macosx':'/Users', 'linux':'/home'}
         if platform in local_plat.keys():
             self.ids.sct.rotation = 0
@@ -102,19 +112,18 @@ class Init_screen(BoxLayout):
             self._system_path = '/storage/emulated/0'
         
         MDApp._running_app.root2 = self
+        Clock.schedule_once(self.config)
+
+    def config(self, *args):
         self.parser = Parser()
         self.chooser = FilesPath(self, self._system_path)
         self.debug = Debug()
         self.prop_phone = self.props_phones['samsung-s10']
-
-        # Clock.schedule_once(self.config)
-
-    def config(self, *args):
-        # self.ids.input_file.input.text = r'C:\Users\IO\Downloads\SpotifyClone\Spotify.py'
-        self.ids.input_file.text_input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\Pizzaria\PizzaManagement\PizzaOrder\main.py'
-        # self.ids.input_file.input.text =  r'D:\Trabalho\Programacao\Python\Aulas\Kivy\Aula-3\main.py'
-        self.search_path()
-        self.change_screens()
+        # # self.ids.input_file.input.text = r'C:\Users\IO\Downloads\SpotifyClone\Spotify.py'
+        # self.ids.input_file.text_input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\Pizzaria\PizzaManagement\PizzaOrder\main.py'
+        # # self.ids.input_file.input.text =  r'D:\Trabalho\Programacao\Python\Aulas\Kivy\Aula-3\main.py'
+        # self.search_path()
+        # self.change_screens()
 
     def change_screens(self, name_screen=''):
         SmartImage = self.ids.img_phone
@@ -300,16 +309,17 @@ class Init_screen(BoxLayout):
             self.path_file_created(path_input)
             self.charg()
         else:
+            # chooser = self.chooser
             if os.path.isdir(path_input):
                 self.chooser.ids.fc.path = path_input
             self.chooser.open()
 
-    def charg(self, *args):
+    def charg(self, chooser=None, *args):
         if self.path_file:
             self.path_file = correct_path(self.path_file)
             self.ids.tl.current = 'tela_kv'
             self.ids.bt_toggle.state = 'down'
-            self.reaload = True
+            Clock.schedule_once(self.allow_loading, 1.5)
             self.chooser.dismiss()
     
     def volta(self):

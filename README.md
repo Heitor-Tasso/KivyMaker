@@ -2,7 +2,7 @@
 Aplicativo parecido com AndroidStudio, porém, para usar com a 
 biblioteca Kivy
 
-**Download para Windows 64 bits - https://www.mediafire.com/file/8kfxmec90x8b5e5/KvMaker.exe/file**
+**Download para Windows 64 bits - https://www.mediafire.com/file/yjvr5a4zpjyhxmm/KvMaker.exe/file**
 
 # Como usar:
 Basta colocar o diretório do arquivo .py principal do seu projeto

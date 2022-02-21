@@ -29,6 +29,8 @@ Builder.load_string('''
     mipmap:True
     allow_strech:True
     keep_ratio:False
+    canvas:
+        Clear
     canvas.before:
         Clear
         Color:
