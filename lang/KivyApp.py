@@ -56,7 +56,7 @@ class SimulateApp(Widget):
 
     def stop(self, KivyApp=None):
         if KivyApp is None:
-            self.root2.remove_screen()
+            self.root2.ids.codeplace.remove_screen()
             self.dispatch('on_stop')
         elif KivyApp.root2 != self.root2:
             raise TypeError(f"this argument is not valid: '{KivyApp}'")

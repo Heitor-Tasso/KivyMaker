@@ -48,22 +48,43 @@ class EffectBehavior(object):
         self.canvas.add(self.ripple_pane)
         self.bind(touch_pos=self.set_ellipse,
                   radius_ellipse=self.set_ellipse)
+        self.bind(pos=self.draw_effect, size=self.draw_effect)
+
         self.ripple_ellipse = None
+        self.ripple_rectangle = None
         self.ripple_col_instruction = None
 
     def ripple_show(self, touch):
         Animation.cancel_all(self, 'radius_ellipse', 'effect_color')
-        self.reset_CanvasBase()
         if isinstance(self, RelativeLayout):
             pos_x, pos_y = self.to_window(*self.pos)
             self.touch_pos = (touch.x-pos_x, touch.y-pos_y)
         else:
             self.touch_pos = (touch.x, touch.y)
         
+        self.draw_effect()
+
+        anim = Animation(
+            radius_ellipse=(max(self.size)*2),
+            t=self.transition_in,
+            effect_color=self.effect_color,
+            duration=self.duration_in,
+        )
+        anim.start(self)
+
+    def draw_effect(self, *args):
+        if self.ripple_pane is None:
+            return None
+
+        if self.ripple_ellipse is not None:
+            self.ripple_pane.clear()
+        else:
+            self.reset_CanvasBase()
+
         with self.ripple_pane:
             if self.type_button == 'Rounded':
                 StencilPush()
-                RoundedRectangle(
+                self.ripple_rectangle = RoundedRectangle(
                     size=self.size, pos=self.pos,
                     radius=self.radius_effect[::-1],
                 )
@@ -74,7 +95,7 @@ class EffectBehavior(object):
                     pos=(x-self.radius_ellipse/2 for x in self.touch_pos),
                 )
                 StencilUnUse()
-                RoundedRectangle(
+                self.ripple_rectangle = RoundedRectangle(
                     size=self.size, pos=self.pos, 
                     radius=self.radius_effect[::-1],
                 )
@@ -88,14 +109,6 @@ class EffectBehavior(object):
                     pos=(x-self.radius_ellipse/2 for x in self.touch_pos),
                 )
                 ScissorPop()
-
-        anim = Animation(
-            radius_ellipse=(max(self.size)*2),
-            t=self.transition_in,
-            effect_color=self.effect_color,
-            duration=self.duration_in,
-        )
-        anim.start(self)
 
     def ripple_fade(self):
         Animation.cancel_all(self, 'radius_ellipse', 'effect_color')
@@ -114,6 +127,11 @@ class EffectBehavior(object):
 
         self.ripple_ellipse.size = (self.radius_ellipse for _ in range(2))
         self.ripple_ellipse.pos = (x-self.radius_ellipse/2 for x in self.touch_pos)
+    
+    def on_touch_up(self, touch):
+        self.ripple_rectangle = None
+        self.ripple_ellipse = None
+        return super(EffectBehavior, self).on_touch_up(touch)
 
     def reset_CanvasBase(self, *args):
         self.radius_ellipse = self.radius_ellipse_default

@@ -28,8 +28,8 @@ with open(KVGet_path('lang/temp.py'), mode='w', encoding='utf-8') as file:
     file.close()
 
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.codeinput import CodeInput
 
+from KVuix.KVTerminal import Debug
 from KVuix.KVFilechooser import FilesPath
 from lang.import_file import Parser
 from kivymd.app import MDApp
@@ -38,29 +38,20 @@ from kivy.logger import Logger
 from kivy.lang import Builder
 from kivy.clock import Clock
 
-from kivy.utils import get_color_from_hex, platform
+from kivy.utils import platform
+from kivy.core.window import Window
 from kivy.metrics import dp
 
 from kivy.base import ExceptionHandler, ExceptionManager
 from kivy.properties import (
     StringProperty, ObjectProperty,
-    NumericProperty, DictProperty
+    DictProperty,
 )
 
 if platform in {'win', 'linux', 'macosx'}:
     import keyboard
 
 Builder.load_file(KVGet_path('KvMaker.kv'))
-
-class Debug(BoxLayout):
-    pass
-
-class MyCode1(CodeInput):
-    index = NumericProperty(0)
-    def __init__(self, index, **kwargs):
-        super().__init__(**kwargs)
-        self.index = index
-        # self.background_color = get_color_from_hex('#282a36')
 
 class Init_screen(BoxLayout):
 
@@ -76,13 +67,8 @@ class Init_screen(BoxLayout):
     reaload = False
     read_keys = None
 
-    index_editor = 0
-    current_editor = None
-    editors = []
-
     path, file = os.path.split(__file__)
 
-    prop_phone = DictProperty()
     phones = [
         'Ipad', 'Samsung Galaxy S10', 'Galaxy S10 One Camera',
     ]
@@ -94,6 +80,8 @@ class Init_screen(BoxLayout):
 
     def __init__(self, **kwargs):
         super(Init_screen, self).__init__(**kwargs)
+        self.debug = Debug()
+        
         KVLog('PLATFORM', platform)
         KVLog('MAIN-PATH', self.path)
         KVLog('MAIN-FILE', self.file)
@@ -102,12 +90,12 @@ class Init_screen(BoxLayout):
         
         local_plat = {'win':'C:\\Users', 'macosx':'/Users', 'linux':'/home'}
         if platform in local_plat.keys():
-            self.ids.sct.rotation = 0
+            self.ids.codeplace.ids.sct.rotation = 0
             self.read_keys = self.win_keyboard
             self._system_path = local_plat[platform]
         
         elif platform == 'android':
-            self.ids.sct.rotation = 180
+            self.ids.codeplace.ids.sct.rotation = 180
             self.read_keys = self.kivy_keyboard
             self._system_path = '/storage/emulated/0'
         
@@ -117,16 +105,17 @@ class Init_screen(BoxLayout):
     def config(self, *args):
         self.parser = Parser()
         self.chooser = FilesPath(self, self._system_path)
-        self.debug = Debug()
-        self.prop_phone = self.props_phones['samsung-s10']
-        # # self.ids.input_file.input.text = r'C:\Users\IO\Downloads\SpotifyClone\Spotify.py'
-        # self.ids.input_file.text_input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\Pizzaria\PizzaManagement\PizzaOrder\main.py'
-        # # self.ids.input_file.input.text =  r'D:\Trabalho\Programacao\Python\Aulas\Kivy\Aula-3\main.py'
+        self.ids.codeplace.prop_phone = self.props_phones['samsung-s10']
+        
+        # text_input = self.ids.input_file.text_input
+        # text_input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\CloneSpotify\SpotifyClone\Spotify.py'
+        # # text_input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\Pizzaria\PizzaManagement\PizzaOrder\main.py'
+        # # text_input.text =  r'D:\Trabalho\Programacao\Python\Aulas\Kivy\Aula-3\main.py'
         # self.search_path()
         # self.change_screens()
 
     def change_screens(self, name_screen=''):
-        SmartImage = self.ids.img_phone
+        SmartImage = self.ids.codeplace.ids.img_phone
         if name_screen == '':
             if not SmartImage.change_screen:
                 return None
@@ -134,73 +123,15 @@ class Init_screen(BoxLayout):
             w, h = SmartImage.size
             if w < dp(500) and w > dp(300):
                 SmartImage.source = KVPhone('samsung-s10')
-                self.prop_phone = self.props_phones['samsung-s10']
+                self.ids.codeplace.prop_phone = self.props_phones['samsung-s10']
             elif w > dp(500):
                 SmartImage.source = KVPhone('ipad')
-                self.prop_phone = self.props_phones['ipad']
+                self.ids.codeplace.prop_phone = self.props_phones['ipad']
         else:
             SmartImage.source = KVPhone(name_screen)
-            self.prop_phone = self.props_phones[name_screen]
-        self.ids.phone.width -= 1/100
+            self.ids.codeplace.prop_phone = self.props_phones[name_screen]
 
-    def update_debug(self, state):
-        if state == 'down':
-            if self.debug not in self.ids.boxkv.children:
-                self.ids.boxkv.add_widget(self.debug)
-        elif state == 'normal':
-            self.ids.boxkv.remove_widget(self.debug)
-
-    def splitter_editor(self, first_x, last_x, widget):
-        if max(first_x, last_x) - min(first_x, last_x) < 5:
-            return first_x
-        if first_x < last_x:
-            box = self.ids.boxCode
-            if (box.width - box.children[-1].width) < dp(300):
-                return first_x
-
-        widget.size_hint_x = 2 - (last_x * (2 / (widget.x + widget.width)))
-        return last_x
-
-    def create_editor(self):
-        num_childrens = len(self.ids.boxCode.children)
-        if num_childrens >= 3:
-            self.remove_editor(self.index_editor-1)
-            num_childrens -= 1
-        editor = MyCode1(index=self.index_editor, size_hint_x=0.5)
-        self.editors.append(editor)
-        self.ids.boxCode.add_widget(editor, num_childrens)
-        self.index_editor += 1
-    
-    def remove_editor(self, index):
-        self.ids.boxCode.remove(self.editors[index])
-        del self.editors[index]
-        self.index_editor -= 1
-
-    def hide_editor(self, index):
-        if self.current_editor is None:
-            pass
-        elif self.editors[index] != self.current_editor:
-            self.ids.boxCode.remove_widget(self.current_editor)
-        
-        num_childrens = len(self.ids.boxCode.children)
-        if num_childrens >= 3:
-            self.ids.boxCode.remove_widget(self.editors[index])
-        else:
-            self.ids.boxCode.add_widget(self.editors[index], num_childrens)
-        self.current_editor = self.editors[index]
-
-    def reload(self, state, *args):
-        if state == 'down':
-            self.ids.bt_toggle.icon_color = get_color_from_hex('#50fa7b')
-            Clock.schedule_interval(self.carrega, 0.3)
-        else:
-            self.ids.bt_toggle.icon_color = get_color_from_hex('#ff5555')
-            Clock.unschedule(self.carrega)
-
-    def remove_screen(self):
-        filhos = self.ids.phone.children
-        if filhos:
-            self.ids.phone.remove_widget(filhos[0])
+        self.ids.codeplace.ids.phone.width -= 1/100
 
     def win_keyboard(self, *args):
         if keyboard.is_pressed('ctrl'):
@@ -213,7 +144,8 @@ class Init_screen(BoxLayout):
         #self.allow_loading()
 
     def allow_loading(self, *args):
-        if self.ids.bt_toggle.state == 'down':
+        toolbar = self.ids.codeplace.ids.toolbar
+        if toolbar.ids.bt_toggle.state == 'down':
             self.quantos_s += 1
             KVLog('RELOAD', f'Ctrl+S {self.quantos_s} vezes')
             self.reaload = True
@@ -224,9 +156,9 @@ class Init_screen(BoxLayout):
             return None
         
         self.reaload = False
-        self.remove_screen()
-        if self.editors:
-            editor = self.editors[self.index_editor-1]
+        self.ids.codeplace.remove_screen()
+        if self.ids.codeplace.editors:
+            editor = self.ids.codeplace.editors[self.ids.codeplace.index_editor-1]
             if editor.focus == True:
                 KVLog('UPDATE-FILE-ON_EDITOR', self.path_file)
                 with open(self.path_file, mode='w', encoding='utf-8') as file:
@@ -243,28 +175,29 @@ class Init_screen(BoxLayout):
             self.ids.btn_debug.state = 'down'
             setattr(MDApp, '__new_app', None)
             # ocorreu um erro e widget é a mensagem
-            self.debug.ids.text_debug.text = widget
+            self.debug.ids.text_debug.text += widget
             return None
 
-        self.ids.telinhas.current = 'ScreenWidget'
+        phone = self.ids.codeplace.ids.phone
         if ext == 'py':
             widget.root2 = self
             setattr(MDApp, '__new_app', widget)
-            self.ids.phone.add_widget(widget.start())
+            phone.add_widget(widget.start())
             widget.dispatch('on_start')
         elif ext == 'kv':
-            self.ids.phone.add_widget(widget)
+            phone.add_widget(widget)
         
-        if self.editors == []:
-            self.create_editor()
-            self.hide_editor(self.index_editor-1)
+        if self.ids.codeplace.editors == []:
+            self.ids.codeplace.create_editor()
+            self.ids.codeplace.hide_editor(self.ids.codeplace.index_editor-1)
         
         KVLog('UPDATE-EDITOR', self.path_file)
         with open(self.path_file, mode='r', encoding='utf-8') as file:
-            self.current_editor.text = file.read()
+            self.ids.codeplace.current_editor.text = file.read()
             file.close()
 
-        self.ids.btn_debug.state = 'normal'
+        toolbar = self.ids.codeplace.ids.toolbar
+        toolbar.ids.btn_debug.state = 'normal'
 
     def popup_get_folder(self, *args):
         pass
@@ -318,35 +251,11 @@ class Init_screen(BoxLayout):
         if self.path_file:
             self.path_file = correct_path(self.path_file)
             self.ids.tl.current = 'tela_kv'
-            self.ids.bt_toggle.state = 'down'
+
+            toolbar = self.ids.codeplace.ids.toolbar
+            toolbar.ids.bt_toggle.state = 'down'
             Clock.schedule_once(self.allow_loading, 1.5)
             self.chooser.dismiss()
-    
-    def volta(self):
-        self.reaload = False
-        self.ids.bt_toggle.state = 'normal'
-        self.ids.tl.current = 'config'
-        self.first_load = True
-
-        self.parser.create_varibles()
-        
-        # self.descarrega_kv('Sair')
-        setattr(MDApp, '__new_app', None)
-        self.quantos_s = 0
-    
-    def volta_debug(self):
-        self.ids.btn_debug.state = 'normal'
-        self.ids.bt_toggle.state = 'down'
-    
-    def start_zoom_phone(self, dt, wid):
-        func = Clock.schedule_interval(partial(self.do_zoom_phone, dt, wid), 0.1)
-        return func
-
-    def do_zoom_phone(self, dt, wid, time):
-        wid.width += dt
-
-    def stop_zoom_phone(self, func):
-        Clock.unschedule(func)
 
 class LogException(ExceptionHandler):
 
@@ -354,13 +263,17 @@ class LogException(ExceptionHandler):
         if MDApp._running_app:
             root = MDApp._running_app.root2
             trace = traceback.format_exc()
-            err = "ERROR: {}".format(trace)
+            err = "\nERROR: {}".format(trace)
 
-            root.ids.btn_debug.state = 'down'
-            root.ids.bt_toggle.state = 'down'
-            Clock.schedule_once(partial(root.reload, ('down')))
+            codeplace = root.ids.codeplace
+            toolbar = codeplace.ids.toolbar
+            
+            toolbar.ids.btn_debug.state = 'down'
+            toolbar.ids.bt_toggle.state = 'down'
+            
+            Clock.schedule_once(partial(codeplace.reload, ('down')))
             setattr(MDApp, '__new_app', None)
-            root.debug.ids.text_debug.text = err
+            root.debug.ids.text_debug.text += err
 
         Logger.exception('!!ERRO!!')
         return ExceptionManager.PASS
@@ -392,5 +305,7 @@ class LoadScreenKivy(MDApp):
 
 if __name__ == '__main__':
     setattr(MDApp, '__new_app', None)
-    LoadScreenKivy().run()
-
+    app = LoadScreenKivy()
+    app.run()
+    app.root2.debug.stop()
+    Window.close()

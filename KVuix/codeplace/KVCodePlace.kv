@@ -1,0 +1,208 @@
+<BarTop@BoxLayout>:
+    size_hint_y:None
+    height:'55dp'
+    canvas:
+        Color:
+            rgba:hex('#282a36')
+        Rectangle:
+            size:self.size
+            pos:self.pos
+    orange_sunset: hex('#ff5555')
+    screencode: None
+    anc_width:'50dp' if self.width < dp(450) else '70dp'
+    KVAnchorIcon:
+        width: root.anc_width
+        KVButtonIcon:
+            source:KVIcons('back')
+            on_release:root.screencode.volta()
+    Widget:
+    KVAnchorIcon:
+        width: root.anc_width
+        KVButtonIcon:
+            icon_color:root.orange_sunset
+            source:KVIcons('editor')
+            on_press:
+                root.screencode.create_editor() if root.screencode.editors == [] else \
+                root.screencode.hide_editor(root.screencode.index_editor-1)
+    KVAnchorIcon:
+        width: root.anc_width
+        KVToggleButtonIcon:
+            icon_color:root.orange_sunset
+            source:KVIcons('repetition')
+            id:bt_toggle
+            on_state: root.screencode.reload(self.state)
+    KVAnchorIcon:
+        width: root.anc_width
+        KVToggleButtonIcon:
+            icon_color:root.orange_sunset
+            source:KVIcons('terminal2')
+            on_state:root.screencode.update_debug(self.state)
+            id:btn_debug
+    KVAnchorIcon:
+        width: root.anc_width
+        KVButtonIcon:
+            icon_color:[1, 1, 1, 1]
+            source:KVIcons('reload1')
+            on_press: root.screencode.init_screen.allow_loading()
+    Widget:
+    KVAnchorIcon:
+        width: root.anc_width
+        KVButtonIcon:
+            source:KVIcons('exit')
+            on_release:app.stop(app)
+
+<KVScreenCode>:
+    init_screen:None
+    prop_phone: {'scale':1, 'height':1, 'x':0, 'y':0}
+    BoxLayout:
+        orientation:'vertical'
+        id:boxkv
+        canvas:
+            Color:
+                rgba:hex('#44475a')
+            Rectangle:
+                size:self.size
+                pos:self.pos
+        BarTop:
+            screencode:root
+            id:toolbar
+        BoxLayout:
+            id:boxCode
+            KVButtonEffect:
+                size_hint_x:None
+                width:'15dp'
+                effect_color: [1, 1, 1, 0.3]
+                color_line: [hex('#282a36'), [1, 1, 1, 0.3]]
+                x_touch: 0
+                can:False
+                on_touch_down:
+                    self.x_touch = args[1].pos[0]
+                    self.can = False if not self.collide_point(*args[1].pos) else True
+                on_touch_move:
+                    if self.can: \
+                    self.x_touch = root.splitter_editor(self.x_touch, args[1].pos[0], telinhas)
+
+            BoxLayout:
+                id:telinhas
+                size_hint_x:0.5
+                orientation: 'vertical'
+                GridLayout:
+                    canvas.before:
+                        Color:
+                            rgba: (0.12, 0.12, 0.12, 1)
+                        Rectangle:
+                            size: self.size
+                            pos: self.pos
+                    rows: 1
+                    id: tab_manager
+                    size_hint_y: None
+                    height: '45dp'
+                    KVAnchorIcon:
+                        KVButtonIcon:
+                            source:KVIcons('zoom-out')
+                            func: None
+                            on_press:
+                                self.func = root.start_zoom_phone(dp(10), phone)
+                            on_release:
+                                root.stop_zoom_phone(self.func)
+                            size:'30dp', '30dp'
+                    KVAnchorIcon:
+                        KVButtonIcon:
+                            source:KVIcons('zoom-in')
+                            func: None
+                            on_press:
+                                self.func = root.start_zoom_phone(dp(-10), phone)
+                            on_release:
+                                root.stop_zoom_phone(self.func)
+                            size:'30dp', '30dp'
+                    KVAnchorIcon:
+                        ToggleButton:
+                            canvas:
+                                Clear
+                                PushMatrix
+                                Color:
+                                    rgba:[1, 1, 1, 1]
+                                Rotate:
+                                    angle:self.angle
+                                    origin: self.center_x, self.center_y
+                                Rectangle:
+                                    size:self.size
+                                    pos:self.pos
+                                    source:KVIcons('iphone-mobile')
+                                PopMatrix
+                            size_hint:None, None
+                            size:'30dp', '30dp'
+                            background_color:[0, 0, 0, 0]
+                            id:orient
+                            angle:0
+                            on_state:
+                                self.angle = 90 if self.state == 'down' else 0
+                    KVAnchorIcon:
+                        KVButtonIcon:
+                            source: KVIcons('three-dots')
+                            size:'30dp', '30dp'
+                            can_open: True
+                            drop: None
+                            on_press:
+                                PhonesDropDown(root.init_screen.phones, root.init_screen.props_phones).open(self)
+                    KVAnchorIcon:
+                        KVToggleButtonIcon:
+                            state_sources:
+                                [KVIcons('change-screen'), KVIcons('change-screen-white')]
+                            on_state:
+                                img_phone.change_screen = False if self.state == 'down' else True
+                            size:'30dp', '30dp'
+                AnchorLayout:
+                    padding:[dp(15), dp(15), dp(15), dp(15)]
+                    Image:
+                        id:img_phone
+                        canvas:
+                            Clear
+                            Rotate:
+                                angle: orient.angle
+                                origin: self.center_x, self.center_y
+                        canvas.after:
+                            Color:
+                                rgba: [1, 1, 1, 1]
+                            Rectangle:
+                                size: self.size
+                                pos: self.pos
+                                texture:self.texture
+                        on_size:
+                            root.init_screen.change_screens()
+                        source:KVPhone('samsung-s10')
+                        prop:root.prop_phone
+                        change_screen: True
+                        allow_strech: True
+                        keep_ratio: False
+                        mipmap: True
+                        FloatLayout:
+                            size_hint:None, None
+                            size: (0, 0)
+                            BoxStencil:
+                                size:
+                                    (phone.width*sct.scale, phone.height*sct.scale)
+                                x:
+                                    img_phone.x + (img_phone.width/2) - \
+                                    (self.width/2) + img_phone.prop['x']
+                                y:
+                                    img_phone.y + (img_phone.height/2) - \
+                                    (self.height/2) + img_phone.prop['y']
+                                Scatter:
+                                    do_rotation: False
+                                    do_scale: False
+                                    do_translation: False
+                                    do_collide_after_children: True
+                                    auto_bring_to_front: False
+                                    scale:
+                                        (img_phone.width*img_phone.prop['scale']) / phone.width
+                                    id:sct
+                                    AnchorLayout:
+                                        id:phone
+                                        size_hint:None, None
+                                        width: dp(400)
+                                        height:
+                                            (img_phone.height**2) * img_phone.prop['height'] / \
+                                            (img_phone.height*sct.scale + 1/100)
+<BoxStencil@BoxLayout+StencilView>:
+    size_hint:None, None

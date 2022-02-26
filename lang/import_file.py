@@ -1,17 +1,12 @@
 
 import sys, traceback, os
 from kivy.lang import Builder
-from kivy.utils import platform
 from kivy.clock import Clock
 
-from importlib import import_module, invalidate_caches
-from lang.KVPath import correct_path, file_paths
-from lang.reload_module import reset_module
-from KVUtils import KVGet_path, KVLog
 from textwrap import dedent
-
-if platform == 'android':
-    from lang import temp
+from KVUtils import KVGet_path, KVLog
+from lang.KVPath import correct_path, file_paths
+from lang.reload_module import reload_module, get_module
 
 class Parser(object):
 
@@ -273,23 +268,15 @@ class Parser(object):
             
             pymodul = sys.modules.get(import_path)
             if pymodul is not None:
-                reset_module(pymodul)
-
-    def import_main(self):
-        # get the widget os temporary file
-        if platform in {'win', 'linux', 'macosx'}:
-            invalidate_caches()
-            return import_module(self.name_module_main)
-        elif platform in {'android'}:
-            return temp
+                reload_module(pymodul)
 
     def reset_main_module(self, first_load_file):
-        self.import_main()
-        modul = sys.modules.get(self.name_module_main)
+        module = get_module(self.name_module_main)
         self.unload_kv_files()
         Builder.unload_file(self.name_of_class)
-        reset_module(modul)
-        widget = getattr(self.import_main(), self.name_of_class)
+        reload_module(module)
+
+        widget = getattr(module, self.name_of_class)
         return widget()
         
 
@@ -376,7 +363,7 @@ class Parser(object):
                     return ['Error', str(error)]
             else:
                 file.close()
-                return ['Error', "Não suportamos outros tipos de arquivos, somente:\n - arquivo.py\n - arquivo.kv"]
+                return ['Error', "\nNão suportamos outros tipos de arquivos, somente:\n - arquivo.py\n - arquivo.kv"]
 
     def erros(self):
         '''

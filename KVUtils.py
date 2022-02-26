@@ -13,4 +13,4 @@ def KVPhone(name, ext='.png'):
     return KVGet_path(f'assets/smartphones/{name}{ext}')
 
 def KVLog(type_msg, msg):
-    print(f'\n|| {type_msg} || --> !! {msg} !!\n')
+    print(f'|| {type_msg} || --> !! {msg} !!\n')

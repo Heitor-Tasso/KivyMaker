@@ -4,6 +4,9 @@ Author:
  - https://stackoverflow.com/a/61617169/14508589
 """
 
+from kivy.utils import platform
+from KVUtils import KVLog
+
 import importlib
 import inspect
 import gc
@@ -17,6 +20,30 @@ _readonly_attrs = {'__annotations__', '__call__', '__class__', '__closure__', '_
                '__reduce__', '__reduce_ex__', '__repr__', '__self__', '__setattr__', '__sizeof__', '__str__',
                '__subclasshook__', '__weakref__', '__members__', '__mro__', '__itemsize__', '__isabstractmethod__',
                '__basicsize__', '__base__'}
+
+
+if platform == 'android':
+    from lang import temp
+    
+    def reload_module(module):
+        KVLog('RELOAD', f'Recarregou modulo: {module}')
+        importlib.reload(module)
+
+    def get_module(name):
+        KVLog('GET', f'Pegou o modulo: {temp}')
+        return temp
+
+elif platform in {'win', 'linux', 'macosx'}:
+
+    def reload_module(module):
+        KVLog('RELOAD', f'Recarregou modulo: {module}')
+        reset_module(module)
+    
+    def get_module(name):
+        importlib.invalidate_caches()
+        module = importlib.import_module(name)
+        KVLog('GET', f'Pegou o modulo: {module}')
+        return module
 
 
 def reset_module(module, inner_modules_also=True):
