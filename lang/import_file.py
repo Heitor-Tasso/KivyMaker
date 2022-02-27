@@ -71,12 +71,12 @@ class Parser(object):
         for local, f_import in zip(locals_files, imports_files):
             with open(local, mode='r', encoding='utf-8') as text:
                 for numL, line in enumerate(text.readlines()):
-                    self.verify_line(line, numL)
+                    self.verify_line(line, numL, 'others')
         
         if self.local_files[self.index_files::]:
             self.update_imports()
 
-    def verify_line(self, line, numL):
+    def verify_line(self, line, numL, file):
         '''
         Verify if the line has a import or Builder functions,
         to use this later.
@@ -95,7 +95,8 @@ class Parser(object):
         for name_import in ('from', ' import'):
             index_import = line.find(name_import)
             if index_import == -1:
-                self.find_app(line, numL)
+                if file == 'main':
+                    self.find_app(line, numL)
                 continue
             
             list_import = line[index_import::].split(' ')
@@ -127,6 +128,7 @@ class Parser(object):
             return None
         
         if line.find('class') != -1 and line.find('App') != -1:
+            KVLog('Line App', line)
             self.name_of_class = line.split(' ')[1].split('(')[0]
 
             class_app = 'MDApp' if line.find('MDApp') != -1 else 'App'
@@ -271,6 +273,9 @@ class Parser(object):
                 reload_module(pymodul)
 
     def reset_main_module(self, first_load_file):
+        if self.name_of_class == '':
+            return None
+        
         module = get_module(self.name_module_main)
         self.unload_kv_files()
         Builder.unload_file(self.name_of_class)
@@ -334,7 +339,7 @@ class Parser(object):
                 self.lines_main_file = file.readlines()
                 try:
                     for numL, line in enumerate(self.lines_main_file):
-                        self.verify_line(line, numL)
+                        self.verify_line(line, numL, 'main')
 
                     # start recursion and parse the main file
                     self.update_imports()
@@ -344,6 +349,8 @@ class Parser(object):
                     if first_load_file is False:
                         self.reload_py_files()
                     widget = self.reset_main_module(first_load_file)
+                    if widget is None:
+                        return ['Error', 'Seu app não tem nenhuma classe para inicializar']
                     
                     self.write_logs()
                     file.close()

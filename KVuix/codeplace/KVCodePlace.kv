@@ -204,5 +204,25 @@
                                         height:
                                             (img_phone.height**2) * img_phone.prop['height'] / \
                                             (img_phone.height*sct.scale + 1/100)
+
 <BoxStencil@BoxLayout+StencilView>:
     size_hint:None, None
+
+<TextCode>:
+    cursor_color: [1, 1, 1, 1]
+    background_color: (0.17, 0.18, 0.17, 1)
+    foreground_color:[1, 1, 1, 1]
+    selection_color: (1, 1, 1, 0.125)
+
+<CodeEditor>:
+    id:scroller
+    code: None
+    effect_cls: 'ScrollEffect'
+    bar_width: '15dp'
+    TextCode:
+        on_kv_post: scroller.code = self
+        size_hint: None, None
+        on_text: scroller.update_width_code()
+        height: max(self.minimum_height, scroller.height)
+        font_size: '18sp'
+        

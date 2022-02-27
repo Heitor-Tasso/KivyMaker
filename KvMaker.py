@@ -13,6 +13,7 @@ __about__ = '''
 
 from functools import partial
 import traceback, os, sys
+
 from KVUtils import KVGet_path, KVPhone, KVLog
 from lang.KVPath import correct_path
 from time import time
@@ -150,6 +151,20 @@ class Init_screen(BoxLayout):
             KVLog('RELOAD', f'Ctrl+S {self.quantos_s} vezes')
             self.reaload = True
 
+    def update_editor(self, write=False):
+        if not write:
+            with open(self.path_file, mode='r', encoding='utf-8') as file:
+                KVLog('UPDATE-EDITOR', self.path_file)
+                self.ids.codeplace.current_editor.code.text = file.read()
+                file.close()
+            return None
+        
+        with open(self.path_file, mode='w', encoding='utf-8') as file:
+            KVLog('UPDATE-FILE-ON_EDITOR', self.path_file)
+            editor = self.ids.codeplace.editors[self.ids.codeplace.index_editor-1]
+            file.write(editor.code.text)
+            file.close()
+
     def carrega(self, *args):
         self.read_keys()
         if not self.reaload:
@@ -157,13 +172,14 @@ class Init_screen(BoxLayout):
         
         self.reaload = False
         self.ids.codeplace.remove_screen()
+
         if self.ids.codeplace.editors:
             editor = self.ids.codeplace.editors[self.ids.codeplace.index_editor-1]
-            if editor.focus == True:
-                KVLog('UPDATE-FILE-ON_EDITOR', self.path_file)
-                with open(self.path_file, mode='w', encoding='utf-8') as file:
-                    file.write(editor.text)
-                    file.close()
+            if editor.code.focus == True or platform in {'android'}:
+                self.update_editor(write=True)
+        else:
+            self.ids.codeplace.create_editor()
+            self.ids.codeplace.hide_editor(self.ids.codeplace.index_editor-1)
         
         tmp = time()
         ext, widget = self.parser.import_widget(self.path_file, self.first_load, self.path)
@@ -172,10 +188,14 @@ class Init_screen(BoxLayout):
         self.first_load = False
 
         if ext == 'Error':
-            self.ids.btn_debug.state = 'down'
+            toolbar = self.ids.codeplace.ids.toolbar
+            toolbar.ids.btn_debug.state = 'down'
             setattr(MDApp, '__new_app', None)
             # ocorreu um erro e widget é a mensagem
-            self.debug.ids.text_debug.text += widget
+            # self.debug.ids.text_debug.text += widget
+            KVLog('ERRO', widget)
+            self.parser.write_logs()
+            self.update_editor()
             return None
 
         phone = self.ids.codeplace.ids.phone
@@ -187,15 +207,7 @@ class Init_screen(BoxLayout):
         elif ext == 'kv':
             phone.add_widget(widget)
         
-        if self.ids.codeplace.editors == []:
-            self.ids.codeplace.create_editor()
-            self.ids.codeplace.hide_editor(self.ids.codeplace.index_editor-1)
-        
-        KVLog('UPDATE-EDITOR', self.path_file)
-        with open(self.path_file, mode='r', encoding='utf-8') as file:
-            self.ids.codeplace.current_editor.text = file.read()
-            file.close()
-
+        self.update_editor()
         toolbar = self.ids.codeplace.ids.toolbar
         toolbar.ids.btn_debug.state = 'normal'
 
@@ -265,6 +277,7 @@ class LogException(ExceptionHandler):
             trace = traceback.format_exc()
             err = "\nERROR: {}".format(trace)
 
+            root.parser.write_logs()
             codeplace = root.ids.codeplace
             toolbar = codeplace.ids.toolbar
             
