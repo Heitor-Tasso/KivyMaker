@@ -11,6 +11,9 @@ __about__ = '''
         e até mesmo para adicionar funcionalidades à UI.
 '''
 
+from kivy.config import Config
+Config.set('graphics', 'maxfps', '200')
+
 from functools import partial
 import traceback, os, sys
 
@@ -184,7 +187,7 @@ class Init_screen(BoxLayout):
         tmp = time()
         ext, widget = self.parser.import_widget(self.path_file, self.first_load, self.path)
         dt = round(time()-tmp, 2)
-        KVLog('TIME-RELOAD', f'{dt} Segundos')   
+        KVLog('TIME-RELOAD', f'{dt} Segundos')
         self.first_load = False
 
         if ext == 'Error':

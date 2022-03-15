@@ -120,7 +120,7 @@ class CodeEditor(ScrollView):
             # Desce ou sobe de acordo com a seleção
             x, y = touch.pos
             
-            dt = (1 / self.code.height) * 20
+            dt = (1 / self.code.height) * dp(20)
             if y < (self.y + dp(40)):
                 self.decrise_scroll(dt, 'y')
             elif y > (self.y + self.height - dp(40)):
@@ -137,7 +137,7 @@ class CodeEditor(ScrollView):
             self.touch_pos = touch.pos
 
             cfd = (last_pos[1] - touch.y)
-            distance = abs(cfd * (len(self.code._lines) * 17 / 185) / 2.2)
+            distance = abs(cfd * (len(self.code._lines) * dp(17) / dp(185)) / 2.2)
             dt = round((1 / self.code.height * distance), 2)
             if self.bar_move == 'left':
                 if cfd > dp(5):
@@ -150,7 +150,7 @@ class CodeEditor(ScrollView):
                     self.touch_pos = last_pos
             
             cfd = (last_pos[0] - touch.x)
-            dt = 7 * (1 / (self.code.width/max(abs(cfd), 1)))
+            dt = dp(7) * (1 / (self.code.width/max(abs(cfd), 1)))
             if self.bar_move == 'bottom':
                 if cfd > dp(5):
                     # Movimentar bar para esquerda

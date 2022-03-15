@@ -85,10 +85,23 @@ class Parser(object):
             `line` (str): line of a file being read.
             `numL` (int): index of this line.
         '''
-        lp = line.replace(' ', '')
+        
         # to know if this line are commented
+        lp = line
+        for ext in {' ', '[', '(', '{'}:
+            lp = lp.replace(ext, '')
+
         if lp.startswith("'''") or lp.startswith('"""'):
             self.commented = not self.commented
+        else:
+            for i in {'=', '(', '{', '[', 'load_string'}:
+                lp2 = lp.split(i)
+                if len(lp2) < 2:
+                    continue
+
+                if lp2[1].startswith("'''") or lp2[1].startswith('"""'):
+                    self.commented = not self.commented
+
         if lp.startswith('#') or self.commented:
             return None
         
@@ -127,13 +140,14 @@ class Parser(object):
         if line.find('SimulateApp') != -1 or self.find_class:
             return None
         
-        if line.find('class') != -1 and line.find('App') != -1:
+        if line.find('class') != -1 and line.rfind('App') != -1:
             KVLog('Line App', line)
             self.name_of_class = line.split(' ')[1].split('(')[0]
 
-            class_app = 'MDApp' if line.find('MDApp') != -1 else 'App'
+            class_app = 'MDApp' if line.rfind('MDApp') != -1 else 'App'
             # substitui para utilizar o app do KvMaker
-            line = line.replace(class_app, 'SimulateApp')
+            f_app = line.rfind(class_app)
+            line = line[0:f_app] + 'SimulateApp' + line[f_app+len(class_app)::]
             self.lines_main_file[numL] = line
             self.find_class = True
 
@@ -254,6 +268,7 @@ class Parser(object):
             if path_file.startswith('KV'):
                 continue
             if len(set(map(path_file.endswith, files))) < 2:
+                KVLog('Descarregando Kv', path_file)
                 Builder.unload_file(path_file)
 
     def reload_py_files(self):
@@ -277,8 +292,8 @@ class Parser(object):
             return None
         
         module = get_module(self.name_module_main)
-        self.unload_kv_files()
-        Builder.unload_file(self.name_of_class)
+        # self.unload_kv_files()
+        # Builder.unload_file(self.name_of_class)
         reload_module(module)
 
         widget = getattr(module, self.name_of_class)
@@ -299,7 +314,7 @@ class Parser(object):
             ['kv', width] if is a kv file and was possible to create widget.
         
         """
-
+        KVLog('first_load_file', first_load_file)
         if first_load_file is True:
             # remove a pasta anterior
             if self.dirname in self._PyPaths:
