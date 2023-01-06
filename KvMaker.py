@@ -18,6 +18,12 @@ from functools import partial
 import traceback, os, sys
 
 from KVUtils import KVGet_path, KVPhone, KVLog
+import shutil
+try:
+    shutil.rmtree(KVGet_path("lang/temp"))
+except FileNotFoundError as err:
+    KVLog("ERROR", err)
+
 from lang.KVPath import correct_path
 from time import time
 
@@ -25,11 +31,6 @@ from time import time
 pathPython = sys.path[0]
 pathWin = f"{pathPython[0:pathPython.find('Temp')]}Programs\Python\Python39\Lib\site-packages"
 sys.path.append(pathWin)
-
-# Clear temp file
-with open(KVGet_path('lang/temp.py'), mode='w', encoding='utf-8') as file:
-    file.write('\n')
-    file.close()
 
 from kivy.uix.boxlayout import BoxLayout
 
@@ -47,15 +48,15 @@ from kivy.core.window import Window
 from kivy.metrics import dp
 
 from kivy.base import ExceptionHandler, ExceptionManager
-from kivy.properties import (
-    StringProperty, ObjectProperty,
-    DictProperty,
-)
+from kivy.properties import StringProperty, ObjectProperty
 
 if platform in {'win', 'linux', 'macosx'}:
     import keyboard
 
+
+
 Builder.load_file(KVGet_path('KvMaker.kv'))
+
 
 class Init_screen(BoxLayout):
 
@@ -112,9 +113,11 @@ class Init_screen(BoxLayout):
         self.ids.codeplace.prop_phone = self.props_phones['samsung-s10']
         
         # text_input = self.ids.input_file.text_input
-        # text_input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\CloneSpotify\SpotifyClone\Spotify.py'
-        # # text_input.text = r'D:\Trabalho\Programacao\Python\Codes\GUI\Kivy\Meus\Pizzaria\PizzaManagement\PizzaOrder\main.py'
-        # # text_input.text =  r'D:\Trabalho\Programacao\Python\Aulas\Kivy\Aula-3\main.py'
+        # text_input.text =  r'G:\Programacao\Python\GUI\Kivy\Meus\DraftUI\teste.py'
+        # text_input.text =  r'G:\Programacao\Python\GUI\Kivy\Meus\DraftUI\main.py'
+        # text_input.text =  r'G:\Programacao\Python\GUI\Kivy\Meus\FireDoom\main.py'
+        # text_input.text =  r'G:\Programacao\Python\GUI\Kivy\Meus\CloneSpotify\SpotifyClone\Spotify.py'
+        # text_input.text =  r'D:\Programacao\Python\GUI\Kivy\Meus'
         # self.search_path()
         # self.change_screens()
 
@@ -298,6 +301,7 @@ ExceptionManager.add_handler(LogException())
 
 class LoadScreenKivy(MDApp):
     root2 = ObjectProperty()
+    simule_app = ObjectProperty()
 
     def build(self):
         return Init_screen()
@@ -325,3 +329,9 @@ if __name__ == '__main__':
     app.run()
     app.root2.debug.stop()
     Window.close()
+
+    try:
+        shutil.rmtree(KVGet_path("lang/temp"))
+    except (FileNotFoundError, PermissionError) as err:
+        KVLog("ERROR", err)
+    

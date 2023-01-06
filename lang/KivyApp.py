@@ -11,12 +11,95 @@ from kivy.logger import Logger
 from kivy.utils import platform
 from kivy.core.window import Window
 from kivy.properties import ObjectProperty, StringProperty
+from kivy.clock import Clock
 
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.config import ConfigParser
 from kivymd.theming import ThemeManager
 from kivymd.utils.fpsmonitor import FpsMonitor
+
+
+class KVClock:
+
+    clock_functions = {}
+
+    @classmethod
+    def _caller(self, callback, dt):
+        try:
+            return callback(dt)
+        except Exception as err:
+            self.unschedule(callback)
+            raise err
+
+    @classmethod
+    def _create_func(self, callback, dt):
+        func = lambda *a, **k: self._caller(callback, dt)
+        self.clock_functions[callback] = func
+        return func
+
+    @classmethod
+    def unschedule(self, callback):
+        if callback in self.clock_functions.keys():
+            Clock.unschedule(self.clock_functions[callback])
+            del self.clock_functions[callback]
+            return True
+        return False
+
+    @classmethod
+    def unschedule_all(self):
+        for clk in self.clock_functions.values():
+            Clock.unschedule(clk)
+        self.clock_functions.clear()
+
+    @classmethod
+    def schedule_once(self, callback, dt=-1):
+        return Clock.schedule_once(self._create_func(callback, dt), dt)
+
+    @classmethod
+    def schedule_interval(self, callback, dt):
+        return Clock.schedule_interval(self._create_func(callback, dt), dt)
+
+
+class KVWindow:
+
+    binded_functions = {}
+
+    @classmethod
+    def _caller(self, callback, *args, **kwargs):
+        try:
+            return callback(*args, **kwargs)
+        except Exception as err:
+            self.unbind(callback)
+            raise err
+
+    @classmethod
+    def _create_func(self, name_callback, callback):
+        func = lambda *a, **k: self._caller(callback, *a, **k)
+        self.binded_functions[callback] = {name_callback:func}
+        return func
+
+    @classmethod
+    def bind(self, **kwargs):
+        for name_callback, function in kwargs.items():
+            if function in self.binded_functions.keys():
+                continue
+            Window.bind(**{name_callback : self._create_func(name_callback, function)})
+
+    @classmethod
+    def unbind(self, callback):
+        if callback in self.binded_functions.keys():
+            Window.unbind(**self.binded_functions[callback])
+            del self.binded_functions[callback]
+            return True
+        return False
+    
+    @classmethod
+    def unbind_all(self):
+        for clk in self.binded_functions.values():
+            Window.unbind(**clk)
+        self.binded_functions.clear()
+
 
 class SimulateApp(Widget):
 
@@ -47,6 +130,7 @@ class SimulateApp(Widget):
         self.config = None
 
     def start(self):
+        App.get_running_app().simule_app = self
         self.root = self.build()
         return self.root
 

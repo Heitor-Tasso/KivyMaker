@@ -1,84 +1,84 @@
-#: import hex kivy.utils.get_color_from_hex
+#:import hex kivy.utils.get_color_from_hex
 #: import Clock kivy.clock.Clock
 
-#: import KVIcons KVUtils.KVIcons
-#: import KVPhone KVUtils.KVPhone
-#: import KVScreenCode KVuix.codeplace.KVCodePlace.KVScreenCode
-#: import KVButtonEffect KVuix.KVButtons.KVButtonEffect
-#: import KVButtonIcon KVuix.KVIcon.KVButtonIcon
-#: import KVToggleButtonIcon KVuix.KVIcon.KVToggleButtonIcon
-#: import KVAnchorIcon KVuix.KVIcon.KVAnchorIcon
-#: import KVIconInput KVuix.KVInputs.KVIconInput
-#: import PhonesDropDown KVuix.KVDropdown.PhonesDropDown
+#:import KVIcons KVUtils.KVIcons
+#:import KVPhone KVUtils.KVPhone
+#:import KVScreenCode KVuix.codeplace.KVCodePlace.KVScreenCode
+#:import KVButtonEffect KVuix.KVButtons.KVButtonEffect
+#:import KVButtonIcon KVuix.KVIcon.KVButtonIcon
+#:import KVToggleButtonIcon KVuix.KVIcon.KVToggleButtonIcon
+#:import KVAnchorIcon KVuix.KVIcon.KVAnchorIcon
+#:import KVIconInput KVuix.KVInputs.KVIconInput
+#:import PhonesDropDown KVuix.KVDropdown.PhonesDropDown
 
 <TollBarTop@BoxLayout>:
-    size_hint_y:None
-    height:'55dp'
+    size_hint_y: None
+    height: '55dp'
     canvas:
         Color:
-            rgba:hex('#282a36')
+            rgba: hex('#282a36')
         Rectangle:
-            size:self.size
-            pos:self.pos
+            size: self.size
+            pos: self.pos
 
 <Init_screen>:
-    orientation:'vertical'
+    orientation: 'vertical'
     ScreenManager:
-        id:tl
+        id: tl
         Screen:
-            name:'config'
+            name: 'config'
             BoxLayout:
-                orientation:'vertical'
+                orientation: 'vertical'
                 TollBarTop:
                     KVAnchorIcon:
                         KVButtonIcon:
-                            source:KVIcons('exit')
-                            on_release:app.stop(app)
+                            source: KVIcons('exit')
+                            on_release: app.stop(app)
                     Label:
                         text:'Configurando'
                         font_size: '20sp'
                     KVAnchorIcon:
                         KVButtonIcon:
-                            source:KVIcons('help')
+                            source: KVIcons('help')
 
                 AnchorLayout:
-                    pad:root.width/5
-                    padding:[self.pad, 70, self.pad, 70] if root.width > dp(500) else [10, 70, 10, 70]
+                    pad: root.width/5
+                    padding: [self.pad, 70, self.pad, 70] if root.width > dp(500) else [10, 70, 10, 70]
                     canvas:
                         Color:
-                            rgba:hex('#44475a')
+                            rgba: hex('#44475a')
                         Rectangle:
-                            size:self.size
-                            pos:self.pos
+                            size: self.size
+                            pos: self.pos
                     BoxLayout:
-                        orientation:'vertical'
+                        orientation: 'vertical'
                         canvas:
                             Color:
-                                rgba:hex('#6272a4')
+                                rgba: hex('#6272a4')
                             RoundedRectangle:
                                 radius: [20, 20, 20, 20]
-                                size:self.size
-                                pos:self.pos
+                                size: self.size
+                                pos: self.pos
                         Widget:
                         AnchorLayout:
-                            anchor_x:'center'
-                            size_hint_y:None
-                            height:'90dp'
+                            anchor_x: 'center'
+                            size_hint_y: None
+                            height: '90dp'
                             KVIconInput:
-                                id:input_file
-                                size_hint_x:0.85
+                                id: input_file
+                                size_hint_x: 0.85
 
-                                label_defaut_color:[208, 208, 208, 1]
-                                text_input_color:[0, 0, 0, 1]
-                                line_color:[0, 0, 0, 1]
-                                background_color:[1, 1, 1, 0.75]
+                                label_defaut_color: [208, 208, 208, 1]
+                                text_input_color: [0, 0, 0, 1]
+                                line_color: [0, 0, 0, 1]
+                                background_color: [1, 1, 1, 0.75]
 
                                 label_text:'Open File'
                                 icon_right_pos_sources:
                                     [KVIcons('create'), KVIcons('path')]
-                                icon_right_type:'button'
+                                icon_right_type: 'button'
 
-                                on_icon_right_release:root.search_path()
+                                on_icon_right_release: root.search_path()
                                 on_input_press:
                                     self.text_input.text = 'Enter local file' if \
                                     self.text_input.text == '' else self.text_input.text
@@ -86,23 +86,23 @@
                                     self.text_input.text = '' if \
                                     self.text_input.text == 'Enter local file' else self.text_input.text
                         AnchorLayout:
-                            anchor_x:'center'
-                            size_hint_y:None
-                            height:'90dp'
+                            anchor_x: 'center'
+                            size_hint_y: None
+                            height: '90dp'
                             KVIconInput:
-                                id:input_create
-                                size_hint_x:0.85
+                                id: input_create
+                                size_hint_x: 0.85
 
-                                label_defaut_color:[208,208,208,1]
-                                text_input_color:[0,0,0,1]
-                                line_color:[0,0,0,1]
-                                icon_right_color:[0,0,0,1]
-                                icon_right_color_pos:[10,0,0,1]
-                                background_color:[1,1,1,.75]
+                                label_defaut_color: [208, 208, 208, 1]
+                                text_input_color: [0, 0, 0, 1]
+                                line_color: [0, 0, 0, 1]
+                                icon_right_color: [0, 0, 0, 1]
+                                icon_right_color_pos: [10, 0, 0, 1]
+                                background_color: [1, 1, 1, .75]
 
-                                icon_right_source:KVIcons('add_white')
-                                icon_right_type:'button'
-                                label_text:'Create File'
+                                icon_right_source: KVIcons('add_white')
+                                icon_right_type: 'button'
+                                label_text: 'Create File'
 
                                 on_icon_right_release:
                                     root.path_file_created(self.text_input.text, True)
@@ -114,6 +114,6 @@
                                     self.text_input.text == 'Enter name file' else self.text_input.text
                         Widget:
         KVScreenCode:
-            name:'tela_kv'
-            id:codeplace
+            name: 'tela_kv'
+            id: codeplace
             init_screen: root

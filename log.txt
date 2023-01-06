@@ -1,0 +1,29 @@
+
+find_class = "False"
+
+index_files = "0"
+
+name_file = ""
+
+name_of_class = ""
+
+dirname = "G:/Programacao/Python/GUI/Kivy/Meus/KvMaker/KivyMaker"
+
+extension = ""
+
+path_filename = "G:/Programacao/Python/GUI/Kivy/Meus/KvMaker/KivyMaker/KvMaker.py"
+
+local_files = [
+]
+
+imports_files = [
+]
+
+_KvPaths = [
+]
+
+_PyPaths = [
+]
+
+schedules = [
+]
